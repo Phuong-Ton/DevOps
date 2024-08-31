@@ -29,3 +29,24 @@ wget https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf -O 
 ls
 cat /etc/*release*
 history
+
+rpm -i telnet.rpm : Install package
+rpm -e telnet     : Uninstall Package
+rpm -q telnet     : Query Package 
+-> do not care about any dependencies software that package have
+
+-> using yum instead
+
+yum install ansible -> install all dependencies
+ONLINE repos include a lot of rpm
+
+yum repolist
+ls /etc/yum.repos.d/ -> config target to yum
+yum list ansible
+yum --showduplicates list ansible
+yum install 
+
+
+
+
+
