@@ -1,0 +1,5 @@
+Linux envinroment:
+1. Ansible using Linux
+2. Kubernete using Linux for master note 
+3. Linux CLI
+4. CentOS 
