@@ -1,0 +1,73 @@
+FOR Ubunto
+cat /etc/*release*
+sudo apt update
+sudo apt install git -y
+
+
+git init
+
+git status
+
+default branch master
+
+---------------------------------------------------
+                     LOCAL RESPO
+---------------------------------------------------
+ WORKING AREA   |   STAGING AREA   |  COMMITED FILE
+ 
+   story.txt
+ 
+git status 
+story.txt is an Untracked file
+
+git add story.txt : move story.txt to STAGING AREA
+---------------------------------------------------
+                     LOCAL RESPO
+---------------------------------------------------
+ WORKING AREA   |   STAGING AREA   |  COMMITED FILE
+                   
+                      story.txt
+ git commit -m  "commit story" : move story.txt from STAGING AREA to COMMITED FILE
+---------------------------------------------------
+                     LOCAL RESPO
+---------------------------------------------------
+ WORKING AREA   |   STAGING AREA   |  COMMITED FILE
+                   
+                                       story.txt
+									   
+before commit you have to config user name and email
+git config user.name "Phuong-Ton"
+git config user.email "Phuongtonthat@gmail.com" 
+
+
+
+
+When 1 file in two area STAGING AREA and WORKING AREA, you can restore STAGING AREA to WORKING AREA
+git restore story.txt  # if you want to restore previous version
+git restore --staged story to move file from STAGING AREA to WORKING AREA
+
+echo "note.txt" >> .gitignore # for untracking this file
+
+git rm -f <file> : delete file 
+git rm -cached <file> to move from COMMITED FILE to WORKING AREA
+
+git log --online
+
+atomic
+recommmened to keep your commit atomic and name message what there commit does
+
+Commit when solve 1 problem example Fixed button bug 
+
+
+
+
+git branch phuong # Create a new branch
+git checkout phuong # Switch to target branch
+git checkout -b phuong # Create and switch to target branch
+git branch -d phuong # Delete target branch
+git branch # list all branch
+
+
+
+
+
