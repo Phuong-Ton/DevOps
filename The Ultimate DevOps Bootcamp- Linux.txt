@@ -46,7 +46,201 @@ yum list ansible
 yum --showduplicates list ansible
 yum install 
 
+-------------------------------------
+service <service name> start
+service <service name> stop
+
+systemctl start <service name>
+systemctl status <service name>
+systemctl enable <service name> : boot when starting
+systemctl disable <service>
+systemctl stop <service name>
+
+
+How to config app as a service
+
+
+systemctl start my_app
+systemctl stop my_app
+-> must config my_app as a systemd service -> config file /etc/systemd/system
+create file my_app.service
+[Service]
+ExecStart=/usr/bin/python3 /opt/code/my_app.py # call your app
+ExecStartPre=/opt/code/before_start_my_app.sh
+ExecStartPost=/opt/code/after_start_my_app.sh
+Restart=always # if this app crash, it is automatically restart 
+-> systemctl daemon-reload
+-> systemctl my_app
+
+If you want to config this service on boot 
+
+
+at file my_app.service
+[Install]
+WantedBy=multi-user.target # start after load user config
+
+[Unit]
+Description=My app description
+
+
+[LAB]
+thor@host01 ~$ sudo systemctl status https
+thor@host01 ~$ sudo systemctl status httpd
+○ httpd.service - The Apache HTTP Server
+     Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled; preset: disabled)
+     Active: inactive (dead)
+       Docs: man:httpd.service(8)
+thor@host01 ~$ sudo systemctl start httpd
+thor@host01 ~$ sudo systemctl status httpd
+● httpd.service - The Apache HTTP Server
+     Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled; preset: disabled)
+     Active: active (running) since Tue 2024-09-03 05:33:13 UTC; 3s ago
+       Docs: man:httpd.service(8)
+   Main PID: 6154 (httpd)
+     Status: "Started, listening on: port 80"
+      Tasks: 177 (limit: 1340692)
+     Memory: 15.9M
+     CGroup: /docker/5ee03c3cc8c9d5c17631272f7e6177f3deb980777b55431b79187ec63b814c83/system.slice/httpd.service
+             ├─6154 /usr/sbin/httpd -DFOREGROUND
+             ├─6162 /usr/sbin/httpd -DFOREGROUND
+             ├─6163 /usr/sbin/httpd -DFOREGROUND
+             ├─6164 /usr/sbin/httpd -DFOREGROUND
+             └─6165 /usr/sbin/httpd -DFOREGROUND
+
+Sep 03 05:33:13 host01.mycorp.org httpd[6154]: Server configured, listening on: port 80
+thor@host01 ~$ sudo systemctl enable  httpd
+Created symlink /etc/systemd/system/multi-user.target.wants/httpd.service → /usr/lib/systemd/system/httpd.service.
+thor@host01 ~$ sudo systemctl stop  httpd
+thor@host01 ~$ sudo systemctl status httpd
+○ httpd.service - The Apache HTTP Server
+     Loaded: loaded (/usr/lib/systemd/system/httpd.service; enabled; preset: disabled)
+     Active: inactive (dead) since Tue 2024-09-03 05:34:24 UTC; 2s ago
+   Duration: 1min 10.430s
+       Docs: man:httpd.service(8)
+    Process: 6154 ExecStart=/usr/sbin/httpd $OPTIONS -DFOREGROUND (code=exited, status=0/SUCCESS)
+   Main PID: 6154 (code=exited, status=0/SUCCESS)
+     Status: "Total requests: 0; Idle/Busy workers 100/0;Requests/sec: 0; Bytes served/sec:   0 B/sec"
+
+Sep 03 05:33:13 host01.mycorp.org httpd[6154]: Server configured, listening on: port 80
+thor@host01 ~$ sudo systemctl disable httpd
+Removed "/etc/systemd/system/multi-user.target.wants/httpd.service".
+thor@host01 ~$ sudo systemctl status httpd
+○ httpd.service - The Apache HTTP Server
+     Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled; preset: disabled)
+     Active: inactive (dead)
+       Docs: man:httpd.service(8)
+
+Sep 03 05:33:13 host01.mycorp.org httpd[6154]: Server configured, listening on: port 80
 
 
 
+thor@host01 ~$ sudo systemctl status app
+○ app.service - My python web application
+     Loaded: loaded (/usr/lib/systemd/system/app.service; disabled; preset: disabled)
+     Active: inactive (dead)
+thor@host01 ~$ curl 127.0.0.1:8081
+curl: (7) Failed to connect to 127.0.0.1 port 8081: Connection refused
+thor@host01 ~$ sudo systemctl start app
+thor@host01 ~$ sudo systemctl status app
+
+● app.service - My python web application
+     Loaded: loaded (/usr/lib/systemd/system/app.service; disabled; preset: disabled)
+     Active: active (running) since Tue 2024-09-03 05:38:17 UTC; 6s ago
+    Process: 8709 ExecStartPre=/bin/bash /opt/code/configure_db.sh (code=exited, status=0/SUCCESS)
+    Process: 8711 ExecStartPost=/bin/bash /opt/code/email_status.sh (code=exited, status=0/SUCCESS)
+   Main PID: 8710 (python3)
+      Tasks: 1 (limit: 1340692)
+     Memory: 18.6M
+     CGroup: /docker/5ee03c3cc8c9d5c17631272f7e6177f3deb980777b55431b79187ec63b814c83/system.slice/app.service
+             └─8710 /usr/bin/python3 /opt/code/my_app.py
+
+Sep 03 05:38:17 host01.mycorp.org bash[8709]: ....
+Sep 03 05:38:17 host01.mycorp.org bash[8711]: Send email after python app starts
+Sep 03 05:38:17 host01.mycorp.org bash[8711]: ....
+Sep 03 05:38:17 host01.mycorp.org python3[8710]:  * Serving Flask app 'my_app'
+Sep 03 05:38:17 host01.mycorp.org python3[8710]:  * Debug mode: off
+Sep 03 05:38:17 host01.mycorp.org python3[8710]: WARNING: This is a development server. Do not use it in a production deployment. U>
+Sep 03 05:38:17 host01.mycorp.org python3[8710]:  * Running on all addresses (0.0.0.0)
+Sep 03 05:38:17 host01.mycorp.org python3[8710]:  * Running on http://127.0.0.1:8081
+Sep 03 05:38:17 host01.mycorp.org python3[8710]:  * Running on http://172.16.238.3:8081
+Sep 03 05:38:17 host01.mycorp.org python3[8710]: Press CTRL+C to quit
+thor@host01 ~$ curl 127.0.0.1:8081
+Welcome!thor@host01 ~$ 
+thor@host01 ~$ cat  /opt/code/configure_db.sh
+echo "Configure db before python app starts"
+echo "...."
+thor@host01 ~$ cat /opt/code/my_app.py
+import os
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def main():
+    return "Welcome!"
+
+@app.route('/how are you')
+def hello():
+    return 'I am good, how about you?'
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8081)
+thor@host01 ~$ cat /usr/lib/systemd/system/app.service
+[Unit]
+Description=My python web application
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/code/my_app.py
+ExecStartPre=/bin/bash /opt/code/configure_db.sh
+ExecStartPost=/bin/bash /opt/code/email_status.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+thor@host01 ~$ sudo systemctl enable  app
+Created symlink /etc/systemd/system/multi-user.target.wants/app.service → /usr/lib/systemd/system/app.service.
+thor@host01 ~$ sudo systemctl status app
+● app.service - My python web application
+     Loaded: loaded (/usr/lib/systemd/system/app.service; enabled; preset: disabled)
+     Active: active (running) since Tue 2024-09-03 05:38:17 UTC; 1min 55s ago
+   Main PID: 8710 (python3)
+      Tasks: 1 (limit: 1340692)
+     Memory: 18.8M
+     CGroup: /docker/5ee03c3cc8c9d5c17631272f7e6177f3deb980777b55431b79187ec63b814c83/system.slice/app.service
+             └─8710 /usr/bin/python3 /opt/code/my_app.py
+
+Sep 03 05:38:17 host01.mycorp.org bash[8711]: Send email after python app starts
+Sep 03 05:38:17 host01.mycorp.org bash[8711]: ....
+Sep 03 05:38:17 host01.mycorp.org python3[8710]:  * Serving Flask app 'my_app'
+Sep 03 05:38:17 host01.mycorp.org python3[8710]:  * Debug mode: off
+Sep 03 05:38:17 host01.mycorp.org python3[8710]: WARNING: This is a development server. Do not use it in a production deployment. U>
+Sep 03 05:38:17 host01.mycorp.org python3[8710]:  * Running on all addresses (0.0.0.0)
+Sep 03 05:38:17 host01.mycorp.org python3[8710]:  * Running on http://127.0.0.1:8081
+Sep 03 05:38:17 host01.mycorp.org python3[8710]:  * Running on http://172.16.238.3:8081
+Sep 03 05:38:17 host01.mycorp.org python3[8710]: Press CTRL+C to quit
+Sep 03 05:38:35 host01.mycorp.org python3[8710]: 127.0.0.1 - - [03/Sep/2024 05:38:35] "GET / HTTP/1.1" 200 -
+thor@host01 ~$ 
+thor@host01 ~$ history
+sudo systemctl status httpd
+sudo systemctl start httpd
+sudo systemctl status httpd
+sudo systemctl enable  httpd
+sudo systemctl stop  httpd
+sudo systemctl status httpd
+sudo systemctl disable httpd
+sudo systemctl status httpd
+sudo systemctl status app
+cat /usr/lib/systemd/system/app.service
+cat /opt/code/my_app.py
+curl 127.0.0.1:8081
+sudo systemctl start app
+sudo systemctl status app
+curl 127.0.0.1:8081
+cat  /opt/code/configure_db.sh
+cat /opt/code/my_app.py
+cat /usr/lib/systemd/system/app.service
+sudo systemctl enable  app
+sudo systemctl status app
+history
+
+ 
 
