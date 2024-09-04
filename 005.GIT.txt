@@ -1,3 +1,37 @@
+You can use GitHub and Git to collaborate on work.
+origin is your fork: your own repo on GitHub
+upstream generally refers to the original repo that you have forked
+Limit for free account : 15 GB GitHub Codespaces storage per month
+                         500 MB GitHub Packages storage  
+                         2,000 minutes per month GitHub Actions
+
+# Download Respo from GITHUB
+git remote add origin https://github.com/Phuong-Ton/Hello-Word.git
+git clone https://github.com/Phuong-Ton/Hello-Word.git
+
+# Upload/ Push from local computer to GITUB
+git config --global user.email "phuongtonthat@gmail.com"
+git config --global user.name "Phuong-Ton"
+
+git push --set-upstream origin master
+Note: Since this is the first time you are connecting to GitHub, you will get some kind of notification you to authenticate this connection.
+#Download / Pull from GITHUB to local computer
+git fetch origin
+git log origin/master
+git diff origin/master
+git merge origin/master
+git pull origin = fetch + merge
+
+# Work with Branch
+git checkout -b [Branch Name]
+git branch
+
+Example
+git checkout -b emergency-fix
+git merge emergency-fix
+git branch -d emergency-fix
+git remote add gh-page https://github.com/Phuong-Ton/Hello-Word.git
+
 FOR Ubunto
 cat /etc/*release*
 sudo apt update
@@ -5,11 +39,8 @@ sudo apt install git -y
 
 
 git init
-
 git status
-
 default branch master
-
 ---------------------------------------------------
                      LOCAL RESPO
 ---------------------------------------------------
@@ -39,25 +70,18 @@ before commit you have to config user name and email
 git config user.name "Phuong-Ton"
 git config user.email "Phuongtonthat@gmail.com" 
 
-
-
-
 When 1 file in two area STAGING AREA and WORKING AREA, you can restore STAGING AREA to WORKING AREA
 git restore story.txt  # if you want to restore previous version
 git restore --staged story to move file from STAGING AREA to WORKING AREA
-
 echo "note.txt" >> .gitignore # for untracking this file
 
 git rm -f <file> : delete file 
 git rm -cached <file> to move from COMMITED FILE to WORKING AREA
-
 git log --online
-
-atomic
+--------------------------------------------------------------------------------------
 recommmened to keep your commit atomic and name message what there commit does
-
 Commit when solve 1 problem example Fixed button bug 
-
+---------------------------------------------------------------------------------------
 
 
 
@@ -66,6 +90,8 @@ git checkout phuong # Switch to target branch
 git checkout -b phuong # Create and switch to target branch
 git branch -d phuong # Delete target branch
 git branch # list all branch
+
+
 
 
 
