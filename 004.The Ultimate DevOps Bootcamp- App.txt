@@ -1,0 +1,552 @@
+Popullar app: Java, Node.JS, and Python
+
+Java : Compile
+Node.JS and Python: Iterpretor
+
+Java:
+
+java -version
+sudo curl https://download.java.net/java/GA/jdk20/bdc68b4b9cbc4ebcb30745c85038d91d/36/GPL/openjdk-20_linux-x64_bin.tar.gz --output/opt/openjdk-20_linux-x64_bin.tar.gz
+cd /opt/
+sudo tar -xvf openjdk-20_linux-x64_bin.tar.gz -C /opt/ 
+/opt/jdk-20/bin/java -version
+echo $PATH
+export PATH=$PATH:/opt/jdk-20/bin
+   
+
+javac My_App.java
+-> My_App.class
+java My_App # No .Class
+-> Hello world
+
+Node.JS and Python
+
+Python3 main.py -> background compiler (main.pyc and then interpreter)
+->Hello World
+
+Build = Compile -> Run Test -> Package -> Delivery
+
+Download sudo curl <https:link.bin.tar.gz> --output /opt/openjdk-20_linux-x64_bin.tar.gz
+tar -xvf /opt/openjdk-20_linux-x64_bin.tar.gz -C /opt/ 
+
+    1  java -version
+    2  cd /opt/app/
+    3  ls
+    4  cat MyClass.java 
+    5  javac MyClass.java 
+    6  ls
+    7  java MyClass.class 
+    8  java MyClass 
+    9  ls
+   10  javadoc -d doc MyClass.java
+   11  ls
+   12  cat doc
+   13  cat doc/MyClass.html 
+   14  history
+   
+
+jar :java archive
+war: web archive
+
+jar cf My_App.jar My_App.class ....
+Run: java -jar My_App.jar
+
+javadoc -d doc My_App.java
+
+----------------------------------------------------------------------------------------------------
+ANT Package Manager Java
+----------------------------------------------------------------------------------------------------
+sudo yum install -y ant
+
+thor@host01 ~$ ant
+Buildfile: build.xml does not exist!
+Build failed
+thor@host01 ~$ /opt/ant/
+build/ dist/  docs/  src/   
+thor@host01 ~$ /opt/ant/
+build/ dist/  docs/  src/   
+thor@host01 ~$ /opt/ant/
+build/ dist/  docs/  src/   
+thor@host01 ~$ ant compile jar
+Buildfile: build.xml does not exist!
+Build failed
+thor@host01 ~$ cd /opt/ant/
+thor@host01 /opt/ant$ ant compile jar
+Buildfile: /opt/ant/build.xml
+
+compile:
+    [javac] /opt/ant/build.xml:5: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+    [javac] Compiling 1 source file to /opt/ant/build
+
+compile:
+    [javac] /opt/ant/build.xml:5: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+
+jar:
+      [jar] Building jar: /opt/ant/dist/MyClass.jar
+
+BUILD SUCCESSFUL
+Total time: 0 seconds
+thor@host01 /opt/ant$ cat build.xml 
+<?xml version="1.0"?>
+<project name="Ant" default="main" basedir=".">
+    <!-- Compiles the java code (including the usage of library for JUnit -->
+    <target name="compile">
+        <javac srcdir="/opt/ant/src" destdir="/opt/ant/build">
+        </javac>
+    </target>
+    <!-- Creates Javadoc -->
+    <target name="docs" depends="compile">
+        <javadoc packagenames="src" sourcepath="/opt/ant/src" destdir="/opt/ant/docs">
+            <!-- Define which files / directory should get included, we include all -->
+            <fileset dir="/opt/ant/src">
+                <include name="**" />
+            </fileset>
+        </javadoc>
+    </target>
+    <!--Creates the deployable jar file  -->
+    <target name="jar" depends="compile">
+        <jar basedir="/opt/ant/build" destfile="/opt/ant/dist/MyClass.jar" >
+            <manifest>
+                <attribute name="Main-Class" value="MyClass" />
+            </manifest>
+        </jar>
+    </target>
+    <target name="run" depends="jar">
+      <java jar="/opt/ant/dist/MyClass.jar" fork="true" />
+    </target>
+    <target name="main" depends="compile, jar, docs, run">
+        <description>Main target</description>
+    </target>
+</project>
+thor@host01 /opt/ant$ 
+
+thor@host01 ~$ ant
+Buildfile: build.xml does not exist!
+Build failed
+thor@host01 ~$ /opt/ant/
+build/ dist/  docs/  src/   
+thor@host01 ~$ /opt/ant/
+build/ dist/  docs/  src/   
+thor@host01 ~$ /opt/ant/
+build/ dist/  docs/  src/   
+thor@host01 ~$ ant compile jar
+Buildfile: build.xml does not exist!
+Build failed
+thor@host01 ~$ cd /opt/ant/
+thor@host01 /opt/ant$ ant compile jar
+Buildfile: /opt/ant/build.xml
+
+compile:
+    [javac] /opt/ant/build.xml:5: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+    [javac] Compiling 1 source file to /opt/ant/build
+
+compile:
+    [javac] /opt/ant/build.xml:5: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+
+jar:
+      [jar] Building jar: /opt/ant/dist/MyClass.jar
+
+BUILD SUCCESSFUL
+Total time: 0 seconds
+thor@host01 /opt/ant$ cat build.xml 
+<?xml version="1.0"?>
+<project name="Ant" default="main" basedir=".">
+    <!-- Compiles the java code (including the usage of library for JUnit -->
+    <target name="compile">
+        <javac srcdir="/opt/ant/src" destdir="/opt/ant/build">
+        </javac>
+    </target>
+    <!-- Creates Javadoc -->
+    <target name="docs" depends="compile">
+        <javadoc packagenames="src" sourcepath="/opt/ant/src" destdir="/opt/ant/docs">
+            <!-- Define which files / directory should get included, we include all -->
+            <fileset dir="/opt/ant/src">
+                <include name="**" />
+            </fileset>
+        </javadoc>
+    </target>
+    <!--Creates the deployable jar file  -->
+    <target name="jar" depends="compile">
+        <jar basedir="/opt/ant/build" destfile="/opt/ant/dist/MyClass.jar" >
+            <manifest>
+                <attribute name="Main-Class" value="MyClass" />
+            </manifest>
+        </jar>
+    </target>
+    <target name="run" depends="jar">
+      <java jar="/opt/ant/dist/MyClass.jar" fork="true" />
+    </target>
+    <target name="main" depends="compile, jar, docs, run">
+        <description>Main target</description>
+    </target>
+</project>
+thor@host01 /opt/ant$ 
+---------------------------------------
+maven
+-------------------------------------------
+
+
+sudo yum install -y maven
+java -cp /opt/maven/my-app/target/my-app-1.0-SNAPSHOT.jar com.mycompany.app.App on host01
+thor@host01 /opt/maven/my-app$ ls
+pom.xml  src  target
+thor@host01 /opt/maven/my-app$ ls target/
+classes                 maven-archiver           surefire-reports
+generated-sources       maven-status             test-classes
+generated-test-sources  my-app-1.0-SNAPSHOT.jar
+thor@host01 /opt/maven/my-app$ java -jar  target/my-app-1.0-SNAPSHOT.jar 
+no main manifest attribute, in target/my-app-1.0-SNAPSHOT.jar
+thor@host01 /opt/maven/my-app$ java -jar target/my-app-1.0-SNAPSHOT.jar 
+no main manifest attribute, in target/my-app-1.0-SNAPSHOT.jar
+thor@host01 /opt/maven/my-app$ java -cp  target/my-app-1.0-SNAPSHOT.jar 
+Usage: java [options] <mainclass> [args...]
+           (to execute a class)
+   or  java [options] -jar <jarfile> [args...]
+           (to execute a jar file)
+   or  java [options] -m <module>[/<mainclass>] [args...]
+       java [options] --module <module>[/<mainclass>] [args...]
+           (to execute the main class in a module)
+   or  java [options] <sourcefile> [args]
+           (to execute a single source-file program)
+
+ Arguments following the main class, source file, -jar <jarfile>,
+ -m or --module <module>/<mainclass> are passed as the arguments to
+ main class.
+
+ where options include:
+
+    -cp <class search path of directories and zip/jar files>
+    -classpath <class search path of directories and zip/jar files>
+    --class-path <class search path of directories and zip/jar files>
+                  A : separated list of directories, JAR archives,
+                  and ZIP archives to search for class files.
+    -p <module path>
+    --module-path <module path>...
+                  A : separated list of directories, each directory
+                  is a directory of modules.
+    --upgrade-module-path <module path>...
+                  A : separated list of directories, each directory
+                  is a directory of modules that replace upgradeable
+                  modules in the runtime image
+    --add-modules <module name>[,<module name>...]
+                  root modules to resolve in addition to the initial module.
+                  <module name> can also be ALL-DEFAULT, ALL-SYSTEM,
+                  ALL-MODULE-PATH.
+    --list-modules
+                  list observable modules and exit
+    -d <module name>
+    --describe-module <module name>
+                  describe a module and exit
+    --dry-run     create VM and load main class but do not execute main method.
+                  The --dry-run option may be useful for validating the
+                  command-line options such as the module system configuration.
+    --validate-modules
+                  validate all modules and exit
+                  The --validate-modules option may be useful for finding
+                  conflicts and other errors with modules on the module path.
+    -D<name>=<value>
+                  set a system property
+    -verbose:[class|module|gc|jni]
+                  enable verbose output
+    -version      print product version to the error stream and exit
+    --version     print product version to the output stream and exit
+    -showversion  print product version to the error stream and continue
+    --show-version
+                  print product version to the output stream and continue
+    --show-module-resolution
+                  show module resolution output during startup
+    -? -h -help
+                  print this help message to the error stream
+    --help        print this help message to the output stream
+    -X            print help on extra options to the error stream
+    --help-extra  print help on extra options to the output stream
+    -ea[:<packagename>...|:<classname>]
+    -enableassertions[:<packagename>...|:<classname>]
+                  enable assertions with specified granularity
+    -da[:<packagename>...|:<classname>]
+    -disableassertions[:<packagename>...|:<classname>]
+                  disable assertions with specified granularity
+    -esa | -enablesystemassertions
+                  enable system assertions
+    -dsa | -disablesystemassertions
+                  disable system assertions
+    -agentlib:<libname>[=<options>]
+                  load native agent library <libname>, e.g. -agentlib:jdwp
+                  see also -agentlib:jdwp=help
+    -agentpath:<pathname>[=<options>]
+                  load native agent library by full pathname
+    -javaagent:<jarpath>[=<options>]
+                  load Java programming language agent, see java.lang.instrument
+    -splash:<imagepath>
+                  show splash screen with specified image
+                  HiDPI scaled images are automatically supported and used
+                  if available. The unscaled image filename, e.g. image.ext,
+                  should always be passed as the argument to the -splash option.
+                  The most appropriate scaled image provided will be picked up
+                  automatically.
+                  See the SplashScreen API documentation for more information
+    @argument files
+                  one or more argument files containing options
+    -disable-@files
+                  prevent further argument file expansion
+    --enable-preview
+                  allow classes to depend on preview features of this release
+To specify an argument for a long option, you can use --<name>=<value> or
+--<name> <value>.
+
+thor@host01 /opt/maven/my-app$ java -cp  target/my-app-1.0-SNAPSHOT.jar  com.mycompany.app.App
+Hello World!
+thor@host01 /opt/maven/my-app$ ls
+pom.xml  src  target
+thor@host01 /opt/maven/my-app$ ls src/
+main  test
+thor@host01 /opt/maven/my-app$ ls src/main/
+java
+thor@host01 /opt/maven/my-app$ ls src/main/java/
+com
+thor@host01 /opt/maven/my-app$ ls src/main/java/com/
+mycompany
+thor@host01 /opt/maven/my-app$ ls src/main/java/com/mycompany/
+app
+thor@host01 /opt/maven/my-app$ ls src/main/java/com/mycompany/app/
+App.java
+thor@host01 /opt/maven/my-app$ cat src/main/java/com/mycompany/app/App.java 
+package com.mycompany.app;
+
+/**
+ * Hello world!
+ *
+ */
+public class App 
+{
+    public static void main( String[] args )
+    {
+        System.out.println( "Hello World!" );
+    }
+}
+thor@host01 /opt/maven/my-app$ ls
+pom.xml  src  target
+thor@host01 /opt/maven/my-app$ ls target/
+classes                 maven-archiver           surefire-reports
+generated-sources       maven-status             test-classes
+generated-test-sources  my-app-1.0-SNAPSHOT.jar
+thor@host01 /opt/maven/my-app$ cd target/
+thor@host01 /opt/maven/my-app/target$ ls
+classes                 maven-archiver           surefire-reports
+generated-sources       maven-status             test-classes
+generated-test-sources  my-app-1.0-SNAPSHOT.jar
+thor@host01 /opt/maven/my-app/target$ ls classes/
+com
+thor@host01 /opt/maven/my-app/target$ ls classes/com/
+mycompany
+thor@host01 /opt/maven/my-app/target$ ls classes/com/mycompany/
+app
+thor@host01 /opt/maven/my-app/target$ ls classes/com/mycompany/app/
+App.class
+thor@host01 /opt/maven/my-app/target$ history    1  sudo yum install ant
+    2  cd /opt/a
+    3  cd /opt/
+    4  ls
+    5  cd..
+    6  cd ..
+    7  cd /opt/ant/
+    8  cat build.xml 
+    9  ant comile jar
+   10  ant compile jar
+   11  ant 
+   12  cd ..
+   13  sudo yum maven -y
+   14  sudo yum install maven -y
+   15  cd maven/
+   16  cat my-app/pom.xml 
+   17  cd my-app/
+   18  ls
+   19  ls src/
+   20  ls src/main/
+   21  ls src/main/java/
+   22  ls src/main/java/com/
+   23  ls src/main/java/com/mycompany/
+   24  ls src/main/java/com/mycompany/app/
+   25  ls src/test/java/com/mycompany/app/
+   26  sudo mvn package
+   27  ls
+   28  ls target/
+   29  java -jar  target/my-app-1.0-SNAPSHOT.jar 
+   30* 
+   31  java -cp  target/my-app-1.0-SNAPSHOT.jar 
+   32  java -cp  target/my-app-1.0-SNAPSHOT.jar  com.mycompany.app.App
+   33  ls
+   34  ls src/
+   35  ls src/main/
+   36  ls src/main/java/
+   37  ls src/main/java/com/
+   38  ls src/main/java/com/mycompany/
+   39  ls src/main/java/com/mycompany/app/
+   40  cat src/main/java/com/mycompany/app/App.java 
+   41  ls
+   42  ls target/
+   43  cd target/
+   44  ls
+   45  ls classes/
+   46  ls classes/com/
+   47  ls classes/com/mycompany/
+   48  ls classes/com/mycompany/app/
+   49  history
+
+thor@host01 /opt/maven/my-app$ cat pom.xml 
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.mycompany.app</groupId>
+  <artifactId>my-app</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <name>my-app</name>
+  <!-- FIXME change it to the project's website -->
+  <url>http://www.example.com</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+      <plugins>
+        <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+        <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.22.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>2.5.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
+        <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.7.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>
+thor@host01 /opt/maven/my-app$ 
+
+
+
+NODEJS
+
+sudo yum install nodejs
+node -v
+npm@8.19.4 /usr/lib/node_modules/npm
+thor@host01 ~$ node -v
+v16.20.2
+thor@host01 ~$ 
+thor@host01 ~$ node /home/add.js 
+Addition : 15
+thor@host01 ~$ cat /home/add.js 
+// Returns addition of two numbers
+let add = function (a, b) {
+  return a+b;
+};
+
+const a = 10, b = 5;
+console.log("Addition : "+ add(a,b));
+thor@host01 ~$ c
+
+
+
+npm search file
+sudo npm install file -g
+thor@host01 ~$ npm install file
+
+added 1 package in 462ms
+thor@host01 ~$ ls
+node_modules  package-lock.json  package.json
+thor@host01 ~$ cat  package.json
+{
+  "dependencies": {
+    "file": "^0.2.2"
+  }
+}
+thor@host01 ~$ ls node_modules/
+file
+thor@host01 ~$ ls node_modules/file/
+LICENSE  README.md  lib  package.json  tests
+thor@host01 ~$ cat node_modules/file/package.json 
+{ "name" : "file"
+, "description" : "Higher level path and file manipulation functions."
+, "tags" : ["file", "path", "fs", "walk"]
+, "version" : "0.2.2"
+, "author" : "Anders Conbere <aconbere@gmail.com>"
+, "directories" :
+  { "lib" : "lib" }
+, "repository" :
+  { "type" : "git"
+  , "url" : "http://github.com/aconbere/node-file-utils.git"
+  }
+, "bugs" :
+  { "url" : "http://github.com/aconbere/node-file-utils" }
+, "main" : "./lib/file"
+, "license": "MIT"
+, "devDependencies": { "mocha": "1.9.x" }
+}
+cd /home/thor/; git clone https://github.com/contentful/the-example-app.nodejs
+
+
+
+the-example-app.nodejs
+   14  npm install file
+   15  ls
+   16  cat  package.json
+   17  ls node_modules/
+   18  ls node_modules/file/
+   19  cat node_modules/file/package.json 
+   20  sudo npm install file -g
+   21  ls
+   22  cd /home/thor/; git clone https://github.com/contentful/the-example-app.nodejs
+   23  ls
+   24  cd the-example-app.nodejs
+   25  ls
+   26  history
+
+

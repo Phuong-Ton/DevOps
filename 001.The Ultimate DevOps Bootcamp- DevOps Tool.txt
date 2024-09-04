@@ -1,0 +1,52 @@
+1. Coding in local computer - > App http://localhost:8080 : This is Develop Stage
+  - text format -> build code to binary(Linux) or exe(Window)
+                   using Maven + Gradle*(./build.sh)
+				   -> This is Build Stage
+  - Team work on the same code base -> need a solution to collaborate -> using GIT command and GITHUB for cloud Respo (central hub) similar platform : GITLAB and BITBUCKET
+  
+2. Need system never turn off -> Need hosting the  system
+     - build envinroment
+	 - Copy code 
+	 - IP > Domain name to map
+	 - Share to the world
+-> This is Deploy Stage
+
+3. When working in collaboration, need to collect code of member of the team 
+    - build code -->to BUID SERVER (difference Server) -> Add new server
+	- test code -->to TEST SERVER  -> Add new server --> this is Test Stage
+	- move to PRODUCTION SERVER -> Deploy to product
+	
+4. Manual to add code to BUID SERVER for building
+          to deploy to TEST SERVER for testing
+		  to deploy to PRODUCT SERVER for delivering
+		 -> take time to do, need faster and frequently -> That why CI/CD appear
+		 
+5. CI/CD stand for continuous integration ad continuous for delivery		 
+   -> CI/CD Pineline tool such as GITHUB Action / Jenkins /  GITLAB CI/CD
+   - Every time  code is pushed, it is automatically pulled from the Github to build server. 
+   - After buiding the executable file, those file is automatically moved to TEST SERVER.
+   - If it is successfull passed the testcae , it is automatically moved to the PRODUCT SERVER and deployed
+   -> LESS MANULLY EFFORT
+   
+6. Dependencies (run enviroment, libraries are manualy install in ALL SERVER)->> exactly the same thing -> new package for installing all of them on all of server that this code runs -> manual task -> if miss out configuring one of these packages with right version in the rightway, It will lead to the software not working 
+--> THAT WHY CONTAINER COME IN
+
+7. Container help package the application (run enviroment + libraries) to IMAGE to run on every system
+one of the technologys that enable working with container is DOCKER
+   - Create Docker File which specifies what the dependences are for this app
+   - Using Docker File by Docker command (docker build)during Buid Stage -> Build IMAGE on BUILD SYSTEM, that IMAGE can be use on TEST SERVER, after testing, deploy to PRODUCT SERVER by docker command (docke run) 
+   Each container is an isolated instance, so this allow to run multiple constainer -> many application 
+   
+8. For increase the available of this application -> need more server for run this application -> How constainer can run with a right way when container fail -> automatic backup -> THAT IS WHERE CONTAINER orchestration platform come in, Kubernetes is a good one for autoscaling, managing resource 
+
+9. How to automatically create a new server (OS, RAM, CPU) -> big challenge to config server -> Terraform TOOL ensure that the server configured are alway the same state -> if someone manually changes the configuration on these server, It will reconfigure base one the state (TerraForm manifest file)
+-> IT IS CALLED AS INFRASTRUCTRE AS CODE -> if you want to change, you can use "terraform apply" command to change the stage -> It is for all of SERVER
+
+10. How about if I just want to configure automatically 1 server -> That is where Ansible come in. Ansible is an automation tool that help configure infrastruction  one provision (YAMP) Ansible Playbook
+
+11. How to monitor system -> Prometheus is a good tool for collecting infomations from difference servers and store it centrally, base on this infomations, Grafana help to visualize its into GRAPHS, CHARTS 
+
+12. DevOps Cycle
+CODE -> BUID -> TEST -> RELEASE -> DEPLOY -> OPERATE -> MONITOR -> FEED BACK-> CODE (Loop)
+Repeat on to infinity and that is what DevOps is
+

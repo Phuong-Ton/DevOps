@@ -1,0 +1,52 @@
+Linux envinroment:
+1. Ansible using Linux
+2. Kubernete using Linux for master note 
+3. Linux CLI
+4. CentOS 
+Lab: https://uulabs.kodekloud.com/courses/lab-course-the-complete-devops-bootcamp/
+
+VI Editor: 2 mode Command mode(Default or Press Esc) and Insert(Press i)
+Command mode
+ + dd for delete row
+ + x for delete letter at current pointer mouse
+ + yy : copy current row
+ + p : paste below
+ + Ctrl + u : go to first row
+ + Ctrl + d : go to last row
+ + /<search string> Enter for search and Press n key for jump to the next result if there are as least 2 result
+ 
+ 
+Download file
+curl <url> -O 
+wget <url> -O n<amefile>
+whoami
+id
+ls /root
+su ls /root
+sudo ls /root
+cd /home/thor/
+wget https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf -O dummy.pdf
+ls
+cat /etc/*release*
+history
+
+rpm -i telnet.rpm : Install package
+rpm -e telnet     : Uninstall Package
+rpm -q telnet     : Query Package 
+-> do not care about any dependencies software that package have
+
+-> using yum instead
+
+yum install ansible -> install all dependencies
+ONLINE repos include a lot of rpm
+
+yum repolist
+ls /etc/yum.repos.d/ -> config target to yum
+yum list ansible
+yum --showduplicates list ansible
+yum install 
+
+
+
+
+
