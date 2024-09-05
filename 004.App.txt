@@ -16,7 +16,7 @@ export PATH=$PATH:/opt/jdk-20/bin
 
 javac My_App.java
 -> My_App.class
-java My_App # No .Class
+java My_App # No":: .Class
 -> Hello world
 
 Node.JS and Python
