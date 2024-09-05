@@ -1,0 +1,80 @@
+GIT RESPO
+git clone https://github.com/kodekloudhub/go-webapp-sample.git
+
+deploy the sample app from the repository
+cd /home/bob/go-webapp-sample/
+go run main.go
+
+Book Management
+There are the following services in the book management.
+----------------------------------------------------------------------------------------------------------------------------
+Service Name	HTTP Method	URL	Parameter	Summary
+Get Service	GET	/api/books/[BOOK_ID]	Book ID	Get a book data.
+List/Search Service	GET	/api/books?query=[KEYWORD]&page=[PAGE_NUMBER]&size=[PAGE_SIZE]	Page, Keyword(Optional)	Get a list of books.
+Regist Service	POST	/api/books	Book	Regist a book data.
+Edit Service	PUT	/api/books	Book	Edit a book data.
+Delete Service	DELETE	/api/books	Book	Delete a book data.
+
+https://8090-port-7e23bbfd8a7b4bb7.labs.kodekloud.com//api/books	
+Account Management
+There are the following services in the Account management.
+----------------------------------------------------------------------------------------------------------------------------
+Service Name	HTTP Method	URL	Parameter	Summary
+Login Service	POST	/api/auth/login	Session ID, User Name, Password	Session authentication with username and password.
+Logout Service	POST	/api/auth/logout	Session ID	Logout a user.
+Login Status Check Service	GET	/api/auth/loginStatus	Session ID	Check if the user is logged in.
+Login Username Service	GET	/api/auth/loginAccount	Session ID	Get the login user's username.
+
+https://8090-port-7e23bbfd8a7b4bb7.labs.kodekloud.com/api/auth/login
+https://8090-port-7e23bbfd8a7b4bb7.labs.kodekloud.com/api/auth/logout
+https://8090-port-7e23bbfd8a7b4bb7.labs.kodekloud.com/loginStatus
+https://8090-port-7e23bbfd8a7b4bb7.labs.kodekloud.com/api/auth/loginAccount
+
+Master Management
+There are the following services in the Master management.
+----------------------------------------------------------------------------------------------------------------------------
+Service Name	HTTP Method	URL	Parameter	Summary
+Category List Service	GET	/api/categories	Nothing	Get a list of categories.
+Format List Service	GET	/api/formats	Nothing	Get a list of formats.
+
+https://8090-port-7e23bbfd8a7b4bb7.labs.kodekloud.com/api/categories
+https://8090-port-7e23bbfd8a7b4bb7.labs.kodekloud.com/api/formats
+
+
+
+CI: continuous interation: like wrap your gift, give a gift to CD, GIT > BUILD (Package) > TEST(Unit test, interation test) > Security check > Product (packaged + tested)
+CD: continuous deployment: deploy the code to system (Cloud, Virual machine, On-Premise) 100% automatic
+CD: continuous delivery: click button at Jenkins
+
+
+https://8090-port-7e23bbfd8a7b4bb7.labs.kodekloud.com
+FULL CI/CD suite
+Open source
+Plugin
+Enter Prise for support 
+https://www.jenkins.io/
+
+
+Install Jenkins: command + port open
+Need Java
+
+AWS, Azure, VM, laptop
+Ubuntu Server 20.04
+
+Automation Server
+
+sudo yum install epel-release -y
+sudo yum install java-11-openjdk -y
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo --no-check-certificate
+sudo rpm --import http://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+sudo yum install jenkins -y
+
+Edit /lib/systemd/system/jenkins.service file and change Jenkins port to 8090 by updating Environment="JENKINS_PORT=" variable value.
+sudo vi /lib/systemd/system/jenkins.service
+
+It should look like this:
+Environment="JENKINS_PORT=8090"
+
+Once done start Jenkins service.
+sudo systemctl start jenkins
+
