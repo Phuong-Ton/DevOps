@@ -62,6 +62,7 @@ AWS, Azure, VM, laptop
 Ubuntu Server 20.04
 
 Automation Server
+ssh -i "devops_key_pair.pem" ec2-user@ec2-34-217-102-33.us-west-2.compute.amazonaws.com
 
 sudo yum install epel-release -y
 sudo yum install java-11-openjdk -y
