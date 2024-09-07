@@ -93,7 +93,6 @@ git branch # list all branch
 
 
 
-
-
-
+if you use this command "git rm 006.Jenkin.txt" to delete file, you can use below command to restore  
+git checkout HEAD~ 006.Jenkin.txt
 

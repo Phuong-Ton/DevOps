@@ -1,0 +1,95 @@
+Hardware <-> WM <-> Docker
+
+Docker is software like GIT using command to create Contain and Image
+Size of container is around 10MB-200MB, Do not need to install OS
+
+
+Contain1 | Contain 2 -> package of software that is created by Developer
+OS -> Can run multile containers in OS <> Different with WM : must have OS
+Hardware: 2GB RAM + 100GB Disk to storage
+
+
+
+https://docs.docker.com/desktop/install/rhel/
+https://docs.docker.com/desktop/install/linux-install/
+
+
+
+Install Docker : https://docs.docker.com/
+https://docs.docker.com/get-started/get-docker/
+https://docs.docker.com/desktop/install/windows-install/
+Consider WSL ad Hyper-V
+F6208FF2-8685-49A4-B8DF-5E197A6147A2/20240906193644
+
+wsl.exe --install --no-distribution
+bcdedit /set hypervisorlaunchtype off
+bcdedit /set hypervisorlaunchtype auto
+
+
+Docker command
+---------------------------------------------------------------------------------------------------------------------------------
+docker version
+docker pull <image name>                                 : download image to host
+docker run <target image>                                : run docker, it will download image if do not have in host server / attach mode 
+docker run -d <target image>                             : run background / detach mode
+docker run -it <target image name /id> bash              : log in directly to target image
+docker run <target container name /id> sleep <seconds>   : run target image, then this container will alive until <seconds> time out
+docker run -d --name <rename> <target image>             : run target image and rename container as specific name
+docker run <target image>:<tag version>                  : run target image with version specific
+docker run -p <port host>:<port container> <target img>  : mapping port between container and host
+docker run -v <vol host>:<vol container> <target img>    : mapping volumn between container and host
+docker attach <target image>                             : change detach mode to attach mode
+docker inspect <target container>                        : infomation about this container. Such as: CPU, IP, Mem,...
+
+docker ps                                                : list all running containers
+docker ps -a                                             : list stop and run containers
+docker stop <target container name/id>                   : stage run -> stop
+docker exec  <target container name /id>  cat /etc/hosts : run command at target container like remote command
+docker rm <target container name/id LIST is supported>   : remove container, or list of containers
+
+docker images                                            : list all images that host server have
+docker rmi <target image>                                : remove image from host. ensure no containers are running this image
+
+---------------------------------------------------------------------------------------------------------------------------------
+Go to https://hub.docker.com/ to see images -> to find the name of respo
+
+example: docker run centos
+cat /etc/*release
+
+Access container 2 ways
+1- Ip internal(container IP) : container open port
+2- IP host : port mapping
+
+--------------------------------------------------------------------------
+Create My Own Image - Web application with dependency
+----------------------------------------------------------------------
+1- OS
+2- update app repo
+3- Intall enviroment python
+4- Install dependencies using app
+
+5- Copy source to /app folder
+6- Run web server using flak command
+
+-> Create a dockerfile
+FROM Ubuntu
+
+RUN apt-get update
+RUN apt-get install python
+
+RUN pip install flask
+RUN pip install flask-mysql
+
+COPY . /opt/source-code
+
+ENTRYPOINT FLASK-AP=/opt/source-code/app.py flask run
+
+docker build Dockerfile -t my_own_app
+docker push my_own_app
+ 
+ 
+Dockerfile [INSTRUCTION] [argument]
+  
+ I hear and I forget. I see and I remember. I do and I understand.
+
+
