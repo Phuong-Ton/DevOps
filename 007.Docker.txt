@@ -40,7 +40,7 @@ docker run -p <port host>:<port container> <target img>  : mapping port between 
 docker run -v <vol host>:<vol container> <target img>    : mapping volumn between container and host
 docker attach <target image>                             : change detach mode to attach mode
 docker inspect <target container>                        : infomation about this container. Such as: CPU, IP, Mem,...
-
+docker run -e <variable name>=<value> <target image>     : set enviroment variable 
 docker ps                                                : list all running containers
 docker ps -a                                             : list stop and run containers
 docker stop <target container name/id>                   : stage run -> stop
@@ -92,4 +92,97 @@ Dockerfile [INSTRUCTION] [argument]
   
  I hear and I forget. I see and I remember. I do and I understand.
 
+Enviroment Variables
+example at python file (Code file) using os.environ.get('APP_COLOR')
+export APP_COLOR=blue; python app.py
+
+docker run -p 38282:8080 --name blue-app -e APP_COLOR=blue -d kodekloud/simple-webappdocker exec -it blue-app env
+
+docker run ubuntu [COMMAND]
+
+FROM Ubuntu
+ENTRYPOINT ["sleep"]
+CMD ["5"] : default seconds if user does not specify sleep time
+---------------------------------------------------------------------
+Docker storage
+-----------------------------------------------------------------------
+Docker storage data at: 
+/var/lib/docker
+   |-container
+   |-image
+   |-volumes
+
+Base on Layered architecture : Layer1 + Layer 2 + .... + Layer n
+-> storage = sum of all layer
+
+Image Layser : Read only
+Container layer: can write and read -> if container is stopped, wrote data will lost.
+-> need mapping -v <host path>:<container path> COPY-ON-WRITE 
+
+■ docker volume create data_volume
+/var/lib/docker
+   |-volumes
+     |-data_volume
+
+■ docker run -v data_volume:/var/lib/mysql mysql
+
+mount </var/lib/mysql> from docker to </var/lib/docker/volumes/data_volume>
+if  data_volume is not created, docker daemon will create it automatically (Volume mount)
+if yout do not want to use defaul path, you can specify full path of host server (Bind mount)
+another way for mounting volume is using --mount
+
+■ docker run --mount type=bind,source=/data/mysql,target=/var/lib/mysql mysql
+Storage drivers base on OS -> read document
+Study hard what interests you the most in the most undisciplined, irreverent and original manner possible
+
+■docker run -d -e MYSQL_ROOT_PASSWORD=db_pass123 --name=mysql mysql
+
+
+---------------------------------------------------------------------
+Docker network
+-----------------------------------------------------------------------
+Docker network default : Bridge
+
+172.16.0.2, 172.16.0.3,.... : internal IP -> Connect to internal Network
+172.16.0.1 = docker0 -> gateway
+■ docker network create --driver bridge --subnet 182.18.0.0/16 custom-isolated-network => create the second internal network
+
+mapping IP of host 192.168.1.X
+■ docker network list
+
+Container name -> Embedded DNS
+
+
+■ docker run ubuntu --network=host -> only 1 container use 1 port of host
+■ docker run ubuntu --network=none : no network
+
+■ docker network inspect bridge
+
+■ docker network create --driver bridge --subnet 182.18.0.0/24 --gateway 182.18.0.1 wp-mysql-network
+
+■ docker run -d --name=mysql-db --network wp-mysql-network -e MYSQL_ROOT_PASSWORD=db_pass123 mysql:5.6
+
+■ docker run -d --name=webapp -e DB_Host=mysql-db -e DB_Password=db_pass123 --network wp-mysql-network -p 38080:8080 kodekloud/simple-webapp-mysql
+---------------------------------------------------------------------
+Docker Registry
+-----------------------------------------------------------------------
+
+image:registry/account/Repository
+example docker.io/phuong-ton/myfirstImage
+■ docker login private-registry.io
+Username:
+Password:
+
+-> Create account at https://hub.docker.com
+
+■ docker run private-registry.io/phuong-ton/myfirstImage
+-> pulling and pushing image to private-registry
+
+
+if company host the private-registry
+docker run -d -p 5000:5000 --name registry registry:2
+docker image tag my-image localhost:5000/my-image
+docker push localhost:5000/my-image
+docker pull localhost:5000/my-image
+docker push IP:5000/my-image
 
