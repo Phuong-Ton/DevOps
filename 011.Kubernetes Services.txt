@@ -1,0 +1,32 @@
+Connect application  frontend, backend, and database
+-> Service is the bridge to connect pod and node
+3 type of service 
+- NodePort (target port, port, and nodeport)
+- ClusterIP
+- Loadbalancer
+
+Create service in YAML file and using labeling to connect with pods
+
+
+apiService: v1
+kind: Service
+metadata:
+  name: myapp-service
+
+spec:
+   type: NodePort
+   ports: 
+    - targetPort: 80
+	  port:80
+	  nodePort: 30008 (30000-32767)
+   selector:
+      app: my-app     -> FROM labels: of pods 
+	  type: frontend  ->
+
+■ kubectl create -f <YAML file>
+■ kubectl get services
+
+http://IP node:nodePort
+
+Service automatic loadbalance (buit-in: random Agrigothym), span all Node -> Automatic -> Can use any node IP to access app
+--> highly flexible 

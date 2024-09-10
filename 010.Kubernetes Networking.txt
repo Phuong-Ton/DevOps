@@ -1,0 +1,30 @@
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++
++ my laptop(Alien) IP: 192.168.1.10
++ ---------------------------------------------------------------
++ minikube VM : 192.16.1.2 
++ Node - Pods(nginx container) -> IP assign for pod: 10.244.0.2
++ ---------------------------------------------------------------
++ 
++ ---------------------------------------------------------------
++ minikube VM : 192.16.1.3 
++ Node - Pods(nginx container) -> IP assign for pod: 10.244.0.2
++ ---------------------------------------------------------------
++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+All container/ pods can communicate with another one witout NAT
+All nodes can communicate with all containers witout NAT
+
+
+
+-> Kubernetes Cluster setup -> IP confict
+Fortunately, we don't have to set it up all on our own as there are multiple pre-built solutions available.
+
+NEED routing by another app/ routing technic : Cisco, AC Networks, Cilium, Flannel , VMware NSX, and Calio
+Depending on the platform you're deploying your Kubernetes cluster on, you may use one of these solutions.
+
+
+Create a diffence subnet for VM
+

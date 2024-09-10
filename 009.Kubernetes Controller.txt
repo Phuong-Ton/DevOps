@@ -1,0 +1,214 @@
+Find extention YAML of redhat
+YAML icon > Extention setting 
+
+Yaml: Schemas
+Associate schemas to YAML files in the current workspace
+Edit in JSON
+{
+    "yaml.schemas": {
+        "kubernetes": "*.yaml"
+    }
+}
+Replication Controller manage many PODs to ensure application available
+Specify the number of running PODs
+if application crashes and pod failes, users will not access application
+
+
+create multiple pods for loadbalancing and scaling
+spans accross multiple pods on DIFFERENCE NODE in cluster
+v1, old <- Replication controller <> Replica set -> new
+How to create replication controller?
+by definition file (YAML file)
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: myapp-rc
+  labels:
+    app: myapp
+	type: frontend
+spec: 
+-----------------------------------------------------------------------
+  template: -> pod template definition (metadata of pod, spec of pod)
+    metadata:
+	  name: myapp
+	  labels:
+		app: myapp
+		type: frontend PODs
+	spec:
+	  containers:
+	    - name: nginx-container
+	      image: nginx
+-----------------------------------------------------------------------
+  replicas: 3
+
+■ kubectl create -f rc-definition.yaml
+■ kubectl get replicationcontroller
+■ kubectl get pods
+
+replicaset-definition.yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-rs
+  labels:
+    app: myapp
+	type: frontend 
+spec:
+-----------------------------------------------------------------------
+  template: -> pod template definition (metadata of pod, spec of pod)
+    metadata:
+	  name: myapp
+	  labels:
+		app: myapp
+		type: frontend ---> LABELING
+	spec:
+	  containers:
+	    - name: nginx-container
+	      image: nginx
+-----------------------------------------------------------------------
+  replicas: 3
+  selector: -> identify what part fall under it
+    mathLabels:
+	type: frontend ---> LABELING
+	
+Replica set can also manage parts that were not created as part of the replica set creation.
+For example, there were parts created before the creation of the replica set that match labels specified in the selector.
+
+Lable and Selector ???
+
+replica set monitor pods, if one failes, it will create a new one
+-> monitor the part
+-> how to know what part to monitor, because there are a lot of pod in Node or cluster
+--> LABELING come in
+
+SCALE
+
+■ kubectl replace -f rs-definition.yaml -> to update change of YAML file
+■ kubectl scale --replicas=6 -f rs-definition.yaml
+■ kubectl scale --replicas=6 replicaset myapp-rs
+
+other command
+
+■ kubectl get replicaset
+■ kubectl delete replicaset <name> --> also delete all PODs under control of replicaset
+
+■ kubectl edit replicaset <name>
+
+
+kubectl api-resources | grep replicaset
+kubectl explain replicaset | grep VERSION
+
+ kubectl apply -f /root/replicaset-definition-2.yaml
+ ---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: replicaset-2
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      tier: nginx
+  template:
+    metadata:
+      labels:
+        tier: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+---------------------------------------------
+
+Kubernetes Deployment
+is the same config with ReplicaSet but kind setting is different. it is Deployment instead of ReplicaSet
+use to update application and roller back
+
+
+■ kubectl get all
+■ kubectl get deployment <name>
+
+  kubectl explain deployment | head -n3
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpd-frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: httpd-frontend
+  template:
+    metadata:
+      labels:
+        name: httpd-frontend
+    spec:
+      containers:
+      - name: httpd-frontend
+        image: httpd:2.4-alpine
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpd-frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      type: frontend
+  template:
+    metadata:
+      labels:
+        name: httpd-pod
+        type: frontend
+    spec:
+      containers:
+      - name: httpd-alpine-container
+        image: httpd:2.4-alpine
+			
+-----------------------------------------------
+Rollout and Versioning
+
+When creating a new Deployment, Revision 1 is created automatically (trigger a rollout)
+When updating a version of application -> revision 2
+■ kubectl rollout status deployment/<name>
+■ kubectl rollout history deployment/<name>
+		
+Deployment Strategy: 2 kind of ways
+1. delete all and create new one -> application down time (RECREATE way)
+2. take down the older version and bring up a newer version one by one --> app is never down and upgrade is seamless (ROLLING UPDATE way)
+
+Update from definition file
+■ kubectl apply -f <definition file>
+■ kubectl set image nginx=nginx:1.9.1 deployment/<name> 
+
+Rollback
+■ kubectl rollout undo deployment/<name>
+
+■ kubectl run : create an deployment instead create pod, replicaset and deployment are created in the backend
+
+■ kubectl create -f deployment.yaml --record : to describe the CHANGE-CAUSE of history command
+it also record at kubectl describe deployment <name> , at Annotations section
+
+■ kubectl edit deployment <name>
+■ kubectl rollout status deployment/<name> 
+■ kubectl rollout history deployment/<name> 
+		
+■ kubectl set image nginx=nginx:1.9.1 deployment/<name> 
+■ kubectl rollout history deployment/<name>
+
+
+
+version 1
+version 2
+version 3  -> ■ kubectl rollout undo deployment/<name> -->  version 1
+															version 3
+															version 4 (version 2 -> version 4)
+
+
+
+
+
+

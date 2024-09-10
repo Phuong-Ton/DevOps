@@ -207,17 +207,6 @@ pipeline{
 Buid CI pineline
 Plugins : Go Plugin
 
-
-
-
-
-
-
-
-
-
-
-
 Plugins
 Docker API Plugin
 Docker commons Plugin
@@ -464,8 +453,7 @@ pipeline {
 }
 
 
-
-
+Install on AWS Linux 2023 -redhat
 
     1  systemctl status httpd
     2  yum update -y
