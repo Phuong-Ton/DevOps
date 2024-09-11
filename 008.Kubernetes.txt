@@ -53,19 +53,28 @@ Install and set up the kubectl tool
 https://kubernetes.io/docs/tasks/tools/
 
 kubectl allows you to run commands against Kubernetes clusters
+https://kubernetes.io/releases/download/#binaries
+v1.31.0	windows	386
 
-Install Minikube: –
 
+Install Minikube: 
 https://minikube.sigs.k8s.io/docs/start/
 
-Install VirtualBox: –
 
+$oldPath = [Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::Machine)
+if ($oldPath.Split(';') -inotcontains 'D:\Program Files\Kubernetes\Minikube'){
+  [Environment]::SetEnvironmentVariable('Path', $('{0};D:\Program Files\Kubernetes\Minikube' -f $oldPath), [EnvironmentVariableTarget]::Machine)
+}
+
+
+
+Install VirtualBox: –
 https://www.virtualbox.org/wiki/Downloads
 https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170
 
 https://www.virtualbox.org/wiki/Linux_Downloads
 
-Minikube Tutorial: –
+
 
 https://kubernetes.io/docs/tutorials/hello-minikube/
 
@@ -76,9 +85,31 @@ https://minikube.sigs.k8s.io/docs/handbook/accessing/#using-minikube-service-wit
  
 C:\Program Files\Kubernetes\Minikube 
 ■ minikube.exe start --driver=virtualbox 
+D:\Program Files\Kubernetes\Minikube>minikube start --driver=virtualbox
+* minikube v1.34.0 on Microsoft Windows 11 Home 10.0.22631.4037 Build 22631.4037
+* Using the virtualbox driver based on user configuration
+* Downloading VM boot image ...
+    > minikube-v1.34.0-amd64.iso....:  65 B / 65 B [---------] 100.00% ? p/s 0s
+    > minikube-v1.34.0-amd64.iso:  333.55 MiB / 333.55 MiB  100.00% 5.74 MiB p/
+* Starting "minikube" primary control-plane node in "minikube" cluster
+* Downloading Kubernetes v1.31.0 preload ...
+    > preloaded-images-k8s-v18-v1...:  326.69 MiB / 326.69 MiB  100.00% 4.77 Mi
+* Creating virtualbox VM (CPUs=2, Memory=4000MB, Disk=20000MB) ...
+! Failing to connect to https://registry.k8s.io/ from inside the minikube VM
+* To pull new external images, you may need to configure a proxy: https://minikube.sigs.k8s.io/docs/reference/networking/proxy/
+* Preparing Kubernetes v1.31.0 on Docker 27.2.0 ...
+  - Generating certificates and keys ...
+  - Booting up control plane ...
+  - Configuring RBAC rules ...
+* Configuring bridge CNI (Container Networking Interface) ...
+  - Using image gcr.io/k8s-minikube/storage-provisioner:v5
+* Verifying Kubernetes components...
+* Enabled addons: storage-provisioner, default-storageclass
+* Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
+
 ■ minikube.exe status
 
-2CPU and 2GB RAM VitualBox VM created
+2CPU and 4GB RAM VitualBox VM created
 
 kubectl get nodes
 create deployment
@@ -158,21 +189,45 @@ Fruits:               Fruits:
 
 
 Download IDE https://code.visualstudio.com/ for edit yaml file
+Add extention YAML of redhat
+
+"yaml.schemas": {
+
+	"kubernetes": "*.yaml"
+},
+"redhat.telemetry.enabled": true
+
+pod-definition.yml
+apiVersion: v1        -> (*)
+kind:
+metadata:             -> Identify object
+	name: myapp-pod
+	labels:
+		app: myapp
+spec:
+	containers:
+	  - name: nginx-container
+		image: nginx
+
+(*) kind       apiVersion
+    Pod           v1
+    Service       v1
+	ReplicaSet    apps/v1
+	Deployment    apps/v1
+
+■ kubectl create -f pod-definition.yml
+■ kubectl describe pod <pod name>
+ kubectl apply -f pod.yaml
 
 
+Run the command kubectl describe pod newpods-<id> and look at the node field.
+Alternatively run kubectl get pods -o wide and check for the node the pod is placed on.
+■ kubectl get pod newpods-l7mz5 newpods-2q9nm newpods-hgzc2 -o wide
 
 
+■ kubectl delete pod webapp
 
 
-
-
-
-
-
-
-
-
-
-
+Update the pod-definition file and use ■ kubectl apply command or use ■ kubectl edit pod redis command.
 
 
