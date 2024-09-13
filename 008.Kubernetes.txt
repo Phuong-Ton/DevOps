@@ -84,6 +84,7 @@ https://minikube.sigs.k8s.io/docs/handbook/accessing/#using-minikube-service-wit
  
  
 C:\Program Files\Kubernetes\Minikube 
+■ minikube update-context
 ■ minikube.exe start --driver=virtualbox 
 D:\Program Files\Kubernetes\Minikube>minikube start --driver=virtualbox
 * minikube v1.34.0 on Microsoft Windows 11 Home 10.0.22631.4037 Build 22631.4037
