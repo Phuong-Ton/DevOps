@@ -270,8 +270,115 @@ cisco.ios collection is specifically designed for managing Cisco IOS devices.
         name: 'httpd'
         state: 'started'
 		
+---------------------------
+Variable insite a playbook
+
+#define
+var:
+  dns_server: 192.168.1.100
+ 
 
 
+
+'{{ dns_server }}'
+
+
+
+
+
+variable.yml
+http_port: 8081
+ssh_port: 22
+
+
+
+
+
+
+'{{ http_port }}'
+
+[bob@student-node playbooks]$ cat inventory 
+localhost ansible_connection=local nameserver_ip=8.8.8.8 snmp_port=160-161
+node01 ansible_host=node01 ansible_ssh_pass=caleston123
+node02 ansible_host=node02 ansible_ssh_pass=caleston123
+[web_nodes]
+node01
+node02
+
+[all:vars]
+app_list=['vim', 'sqlite', 'jq']
+user_details={'username': 'admin', 'password': 'secret_pass', 'email': 'admin@example.com'}
+
+- name: 'Add nameserver in resolv.conf file on localhost'
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: 'Add nameserver in resolv.conf file'
+      lineinfile:
+        path: /tmp/resolv.conf
+        line: 'nameserver {{  nameserver_ip  }}'
+		
+We have updated the /home/bob/playbooks/playbook.yaml playbook to add a new task to disable SNMP port on localhost. However, the port is hardcoded in the playbook. Update the playbook to replace the hardcoded value of the SNMP port to use the value from the variable named snmp_port, defined in the inventory file.
+
+[bob@student-node playbooks]$ cat playbook.yaml 
+---
+- name: 'Add nameserver in resolv.conf file on localhost'
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: 'Add nameserver in resolv.conf file'
+      lineinfile:
+        path: /tmp/resolv.conf
+        line: 'nameserver {{  nameserver_ip  }}'
+    - name: 'Disable SNMP Port'
+      firewalld:
+        port: '160-161'
+        permanent: true
+        state: disabled 
+[bob@student-node playbooks]$ cat inventory 
+localhost ansible_connection=local nameserver_ip=8.8.8.8 snmp_port=160-161
+node01 ansible_host=node01 ansible_ssh_pass=caleston123
+node02 ansible_host=node02 ansible_ssh_pass=caleston123
+[web_nodes]
+node01
+node02
+
+[all:vars]
+app_list=['vim', 'sqlite', 'jq']
+user_details={'username': 'admin', 'password': 'secret_pass', 'email': 'admin@example.com'}
+[bob@student-node playbooks]$ vim playbook.yaml 
+
+---------------------------
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install applications
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ app_list }}"
+
+
+
+
+
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Set up user
+      user:
+        name: "{{ user_details.username }}"
+        password: "{{ user_details.password }}"
+        comment: "{{ user_details.email }}"
+        state: present
+		
+condition
+when <condition> if condition is true, that task is run
+tasks:
+  when : ansible_os_family == Debian 
 
 
 
