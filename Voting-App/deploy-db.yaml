@@ -8,7 +8,7 @@ metadata:
 spec:
   replicas: 1
   selector:
-    mathLablels:
+    matchLabels:
       name: db-pod
       app: my-voting-app
   template:
@@ -28,3 +28,5 @@ spec:
               value: "postgres"
             - name: POSTGRES_PASSWORD
               value: "postgres"
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: trust
