@@ -96,3 +96,32 @@ git branch # list all branch
 if you use this command "git rm 006.Jenkin.txt" to delete file, you can use below command to restore  
 git checkout HEAD~ 006.Jenkin.txt
 
+One day or day one. It's your choice
+
+WHEN CONFIT:
+merge by hand -> save file again
+git add .
+git merge
+
+WHEN WANT TO CONTRIBUTE ONE RESPO: Folk -> Send Pull Request from your folk to origin Respo
+The owner of this Respo will review and Merge it if it is helpful
+-> if they merge, you will become a contribute of this project
+git clone <folk url>
+<Change something>
+git add .
+git commit -m "ABC"
+git push
+Create new pull request to origin and WAITING
+
+
+
+
+
+
+
+
+
+
+
+
+

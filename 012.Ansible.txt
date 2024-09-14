@@ -1,0 +1,281 @@
+Script > needCoding skill
+
+Ansible: Simple and Powerful.
+bash -> Ansible Playbook
+Ansible Document
+automation setting
+
+
+
+1. Using VitualBox for lab
+2. Create a template first base on Centos
+3. Ansible Control Machine
+   Ansible Target Machine
+
+Download VitualBox -> https://www.osboxes.org/
+https://www.osboxes.org/virtualbox-images/
+https://www.osboxes.org/centos/
+
+
+clone image from template, make sure check init Macaddress-> log in and find ifconfig
+
+
+
+/etc/hostname
+ansible-controller
+/etc/hosts
+127.0.0.1 ansible-controller
+restart
+
+
+■ sudo yum install ansible
+■ ansible --version
+Check network between controller -> target
+create file inventory.txt
+target1 ansible_host=192.168.1.114 ansible_ssh_pass=osboxes.org
+
+■ ssh 192.168.1.114 manual hit to create host key ssh 
+config /etc/ansible/ansible.cfg
+#host_key_checking = False
+
+■ ansible target1 -m ping -i inventory.txt
+ping-pong is ok
+
+-----------------------------------
+Ansible Inventory default /etc/ansible/hosts
+
+Ansible : agentless on target system
+
+1. alias host 
+ansible_host=IP
+ansible_host=DCS00001@d0001.com
+
+2. connection type (Window or Linux)
+ansible_connection=ssh
+ansible_connection=winrm
+
+3. port access
+ansible_port=22
+ansible_port=5986   ??? 3389
+
+4.user
+ansible_user
+
+5.pass
+ansible_ssh_pass
+ansible_password for window
+
+
+student-node :- This host will act as an Ansible master node where you will create playbooks, inventory, roles etc and you will be running your playbooks from this host itself.
+
+
+node01 :- This host will act as an Ansible client/remote host where you will setup/install some stuff using Ansible playbooks. Below are the SSH credentials for this host:
+User: bob
+Password: caleston123
+
+
+node02 :- This host will also act as an Ansible client/remote host where you will setup/install some stuff using Ansible playbooks. Below are the SSH credentials for this host:
+User: bob
+Password: caleston123
+
+
+Note: Please type exit or logout on the terminal or press CTRL + d to log out from a specific node.
+
+
+
+[all_servers:children]
+web_servers
+db_servers
+
+[bob@student-node playbooks]$ cat inventory 
+# Sample Inventory File
+
+# Web Servers
+web1 ansible_host=server1.company.com ansible_connection=ssh ansible_user=root ansible_ssh_pass=Password123!
+web2 ansible_host=server2.company.com ansible_connection=ssh ansible_user=root ansible_ssh_pass=Password123!
+web3 ansible_host=server3.company.com ansible_connection=ssh ansible_user=root ansible_ssh_pass=Password123!
+
+# Database Servers
+db1 ansible_host=server4.company.com ansible_connection=winrm ansible_user=administrator ansible_password=Password123!
+
+
+[web_servers]
+web1
+web2
+web3
+
+[db_servers]
+db1
+
+[all_server:children]
+web_servers
+db_servers
+
+-------------------------------------------------------------------
+| Server Alias |  Server Name  |  OS    |     User      | Password |
+-------------------------------------------------------------------
+| sql_db1      | sql01.xyz.com | Linux  |     root      | Lin$Pass |
+-------------------------------------------------------------------
+| sql_db2      | sql02.xyz.com | Linux  |     root      | Lin$Pass |
+-------------------------------------------------------------------
+| web_node1    | web01.xyz.com | Win    | administrator | Win$Pass |
+-------------------------------------------------------------------
+| web_node2    | web02.xyz.com | Win    | administrator | Win$Pass |
+-------------------------------------------------------------------
+| web_node3    | web03.xyz.com | Win    | administrator | Win$Pass |
+
+
+--------------------------------------------------------
+|    Group         |  Members                          |
+--------------------------------------------------------
+|    db_nodes      |  sql_db1, sql_db2                 |
+--------------------------------------------------------
+|   web_nodes      |  web_node1, web_node2, web_node3  |
+--------------------------------------------------------
+|    boston_nodes  |  sql_db1, web_node1               |
+--------------------------------------------------------
+|    dallas_nodes  |  sql_db2, web_node2, web_node3    |
+--------------------------------------------------------
+|   us_nodes       |  boston_nodes, dallas_nodes       |
+--------------------------------------------------------
+
+# Groups
+[db_nodes]
+sql_db1
+sql_db2
+
+[web_nodes]
+web_node1
+web_node2
+web_node3
+
+[boston_nodes]
+sql_db1
+web_node1
+
+[dallas_nodes]
+sql_db2
+web_node2
+web_node3
+
+[us_nodes:children]
+boston_nodes
+dallas_nodes
+
+■ ansible-playbook playbooks.yml
+■ ansible-playbook update_service.yml --check
+
+
+ansible-playbook configure_database.yml --check --diff 
+
+To check the configure_database.yml playbook for syntax errors
+ansible-playbook --syntax-check configure_database.yml
+
+ ensure that it adheres to best practices and doesn't have any style-related issues
+ansible-lint database_setup.yml
+
+After running ansible-lint on the playbook, the following issues might be seen.
+A. Incorrect indentation.
+C. Missing name attribute for a task.
+
+
+
+Ignoring the feedback and proceeding with playbook execution is definitely not a recommended action.
+
+
+
+cd /home/bob/playbooks
+ansible-playbook -i inventory playbook.yaml
+
+---
+- name: 'Execute a command to display hosts file on localhost'
+  hosts: localhost
+  become: yes
+  tasks:
+     - name: 'Task to display hosts file'
+       command: 'cat /etc/hosts'
+	   
+	   
+---
+- name: 'Execute two commands on localhost'
+  hosts: localhost
+  become: yes
+  tasks:
+     - name: 'Execute a date command'
+       command: date
+     - name: 'Task to display nameservers'
+       command: 'cat /etc/resolv.conf'
+	   
+---
+- name: 'Execute two commands on node01'
+  hosts: node01
+  become: yes
+  tasks:
+    - name: 'Execute a date command'
+      command: date
+    - name: 'Task to display hosts file on node01'
+      command: 'cat /etc/hosts'
+- name: 'Execute a command on node02'
+  hosts: node02
+  become: yes
+  tasks:
+     - name: 'Task to display hosts file on node02'
+       command: 'cat /etc/hosts'
+	   
+
+---------------------------------
+Ansible Module
+---------------------------------
+System - User, Group, Hostname, Iptable, Lvg, Make, Mount, Ping, Timezone, Systemd, Service
+Commands - Command, Expect, Script, Shell
+Files - Acl, archive, Copy, File, Find, 
+Database - Mongodb, 
+Cloud - Amazon, Aure, Docker, Google, VMware, 
+Window - win_copy, win_file, win_path, win_ping
+more more
+
+https://docs.ansible.com/
+---------------------------------
+Commands
+---------------------------------
+task:
+  - name: "describle"
+  command: cat resolv.conf chdir=/etc
+  
+  
+  
+Dynamic Inventory Plugin will be used to fetch real-time information about your AWS ec2 instances.
+ansible-inventory --list -i aws_inventory.py
+We can use following command to list all hosts in our AWS inventory using this script.
+
+cisco.ios collection is specifically designed for managing Cisco IOS devices.
+
+---
+- name: 'hosts'
+  hosts: all
+  become: yes
+  tasks:
+    - name: 'Execute a script'
+      script: '/tmp/install_script.sh'
+	  
+---
+- name: 'hosts'
+  hosts: all
+  become: yes
+  tasks:
+    - name: 'Execute a script'
+      script: '/tmp/install_script.sh'
+    - name: 'Start httpd service'
+      service:
+        name: 'httpd'
+        state: 'started'
+		
+
+
+
+
+
+
+
+
+
