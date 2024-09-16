@@ -1,0 +1,441 @@
+Module 1: First Section
+1. Introduction 05:55
+2. Kubernetes Series of Courses 04:34
+3. Kubernetes for Beginners Course
+4. Certification Details 03:14
+5. CNCF Certification
+6. A note on Course Curriculum
+7. Join Our Community
+
+Module 2: Core Concepts - 25 Lessons
+1. Recap-Architecture 06:16
+2. Docker-vs-ContainerD 13:05
+3. Recap-Pods 09:13
+4. Lab- YAML Basics
+5. Recap - Pods with YAML 07:00
+6. Recap - Demo - Creating Pods with YAML 10:16
+7. Introduction 05:45
+8. Practice Test - Kubernetes - CKAD - Pods
+9. Solution - Pods (optional) 11:32
+10. Edit Pods
+11. Recap-ReplicaSets 16:09
+12. Practice Test - Kubernetes - CKAD - ReplicaSets
+13. Solution - ReplicaSets (optional) 14:09
+14. Recap-Deployments 04:26
+15. Practice Test - Kubernetes - CKAD - Deployments
+16. Solution: Deployments (optional) 07:07
+17. Recap - Namespaces 08:23
+18. Practice Test - Kubernetes - CKAD - Namespaces
+19. Solution: Namespaces (optional) 06:04
+20. Certification Tip - Imperative Commands!
+21. Certification Tip: Formatting Output with kubectl
+22. Practice Test - Imperative Commands
+23.Solution: Imperative Commands (optional) 13:25
+24. A Quick Reminder 01:10
+25. Download Course Deck
+
+
+$300 with 1 time free attemp
+Online Exam: perfomance exam
+can access Kubernetes Documentation
+Certified Kubernetes Application Developer: https://www.cncf.io/certification/ckad/
+Candidate Handbook: https://www.cncf.io/certification/candidate-handbook
+
+Exam Tips: https://docs.linuxfoundation.org/tc-docs/certification/tips-cka-and-ckad
+
+Keep the code - 20KLOUD handy while registering for the CKA or CKAD exams at Linux Foundation to get a 20% discount.
+
+The course curriculum is tailored to match the requirements for the CKAD exam. However, we are working on adding additional content as well.
+
+If you’d like any other topics to be covered, please raise an issue here with details about the topics and tag it “Lecture Request” and “CKAD”:
+
+https://kodekloud.com/request-a-course/
+https://kodekloud.com/community/c/kubernetes/6
+We use kubectl run command with --dry-run=client -o yaml option to create a manifest file :-
+kubectl run redis --image=redis123 --dry-run=client -o yaml > redis-definition.yaml
+
+
+After that, using kubectl create -f command to create a resource from the manifest file :-
+
+kubectl create -f redis-definition.yaml 
+Verify the work by running kubectl get command :-
+
+kubectl get pods
+
+
+
+■ kubectl edit pod redis
+
+OR 
+
+■ kubectl apply -f redis-definition.yaml
+
+A Note on Editing Existing Pods
+In any of the practical quizzes, if you are asked to edit an existing POD, please note the following:
+
+If you are given a pod definition file, edit that file and use it to create a new pod.
+If you are not given a pod definition file, you may extract the definition to a file using the below command:
+■ kubectl get pod  -o yaml > pod-definition.yaml
+Then edit the file to make the necessary changes, delete, and re-create the pod.
+To modify the properties of the pod, you can utilize the
+■ kubectl edit pod 
+command. Please note that only the properties listed below are editable.
+
+spec.containers[*].image
+spec.initContainers[*].image
+spec.activeDeadlineSeconds
+spec.tolerations
+spec.terminationGracePeriodSeconds
+Run the command: You can check for apiVersion of replicaset by command kubectl api-resources | grep replicaset
+
+kubectl explain replicaset | grep VERSION and correct the apiVersion for ReplicaSet.
+
+Then run the command: kubectl create -f /root/replicaset-definition-1.yaml
+
+
+EDIT replicaset must delete pod
+Run the command: kubectl edit replicaset new-replica-set, modify the image name and then save the file.
+
+Delete the previous pods to get the new ones with the correct image.
+
+For this, run the command: kubectl delete po <pod-name>
+
+SCALE
+Run the command: kubectl edit replicaset new-replica-set, modify the replicas and then save the file OR run: kubectl scale rs new-replica-set --replicas=5 to scale up to 5 PODs.
+
+Deployment = ReplicaSet
+Run the command: kubectl describe deployment <deployment-name> and look under the Containers section.
+
+Run the command: kubectl explain deployment | head -n3 and correct the value of kind.
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpd-frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: httpd-frontend
+  template:
+    metadata:
+      labels:
+        name: httpd-frontend
+    spec:
+      containers:
+      - name: httpd-frontend
+        image: httpd:2.4-alpine
+
+Practice Test - Kubernetes - CKAD - Namespaces
+controlplane ~ ✖ kubectl get namespace
+NAME              STATUS   AGE
+kube-system       Active   9m11s
+kube-public       Active   9m11s
+kube-node-lease   Active   9m10s
+default           Active   9m10s
+finance           Active   33s
+marketing         Active   33s
+dev               Active   33s
+prod              Active   33s
+manufacturing     Active   33s
+research          Active   33s
+
+Run the command to get exact the number of namespaces kubectl get ns --no-headers | wc -l
+controlplane ~ ➜  kubectl get ns --no-headers | wc -l
+10
+
+controlplane ~ ➜  kubectl get pod --namespace=research | wc -l
+3
+
+controlplane ~ ➜  kubectl get pod --namespace=research 
+NAME    READY   STATUS             RESTARTS      AGE
+dna-2   0/1     CrashLoopBackOff   4 (59s ago)   2m32s
+dna-1   0/1     CrashLoopBackOff   4 (47s ago)   2m32s
+
+
+controlplane ~ ➜  kubectl get pod --namespace=research  --no-headers | wc -l
+2
+
+
+Run the command: kubectl run redis --image=redis -n finance
+
+Run the command: kubectl run redis --image=redis -n finance
+controlplane ~ ✖ kubectl get pods --all-namespaces 
+NAMESPACE       NAME                                      READY   STATUS             RESTARTS      AGE
+kube-system     local-path-provisioner-75bb9ff978-f2bg9   1/1     Running            0             14m
+kube-system     coredns-576bfc4dc7-wnm4d                  1/1     Running            0             14m
+kube-system     helm-install-traefik-crd-wv7pp            0/1     Completed          0             14m
+kube-system     helm-install-traefik-bx542                0/1     Completed          1             14m
+kube-system     svclb-traefik-36a035c6-frccn              2/2     Running            0             14m
+kube-system     metrics-server-557ff575fb-2zvkr           1/1     Running            0             14m
+kube-system     traefik-5fb479b77-n46hw                   1/1     Running            0             14m
+dev             redis-db                                  1/1     Running            0             6m38s
+marketing       redis-db                                  1/1     Running            0             6m38s
+marketing       blue                                      1/1     Running            0             6m37s
+manufacturing   red-app                                   1/1     Running            0             6m38s
+finance         payroll                                   1/1     Running            0             6m37s
+finance         redis                                     1/1     Running            0             68s
+research        dna-2                                     0/1     CrashLoopBackOff   6 (55s ago)   6m38s
+research        dna-1                                     0/1     CrashLoopBackOff   6 (40s ago)   6m38s
+
+
+
+Since the blue application and the db-service are in different namespaces. In this case, we need to use the service name along with the namespace to access the database. The FQDN (fully Qualified Domain Name) for the db-service in this example would be db-service.dev.svc.cluster.local.
+
+Note: You can also access it using the service name and namespace like this: db-service.dev
+-------------------------------------------------------------------------------------------------------------------------------------
+Certification Tip - Imperative Commands!
+-------------------------------------------------------------------------------------------------------------------------------------
+
+
+While you would be working mostly the declarative way – using definition files, imperative commands can help in getting one time tasks done quickly, as well as generate a definition template easily. This would help save considerable amount of time during your exams.
+
+Before we begin, familiarize with the two options that can come in handy while working with the below commands:
+
+--dry-run : By default as soon as the command is run, the resource will be created. If you simply want to test your command , use the --dry-run=client option. This will not create the resource, instead, tell you whether the resource can be created and if your command is right.
+
+-o yaml: This will output the resource definition in YAML format on screen.
+
+Use the above two in combination to generate a resource definition file quickly, that you can then modify and create resources as required, instead of creating the files from scratch.
+
+POD
+Create an NGINX Pod
+
+■  kubectl run nginx --image=nginx
+Generate POD Manifest YAML file (-o yaml). Don’t create it(–dry-run)
+
+■  kubectl run nginx --image=nginx --dry-run=client -o yaml
+Deployment
+Create a deployment
+
+■  kubectl create deployment --image=nginx nginx
+Generate Deployment YAML file (-o yaml). Don’t create it(–dry-run)
+
+`kubectl create deployment --image=nginx nginx --dry-run -o yaml`
+Generate Deployment with 4 Replicas
+
+■ kubectl create deployment nginx --image=nginx --replicas=4
+You can also scale a deployment using the kubectl scale command.
+
+■ kubectl scale deployment nginx --replicas=4
+Another way to do this is to save the YAML definition to a file and modify
+
+■ kubectl create deployment nginx --image=nginx--dry-run=client -o yaml > nginx-deployment.yaml
+You can then update the YAML file with the replicas or any other field before creating the deployment.
+
+Service
+Create a Service named redis-service of type ClusterIP to expose pod redis on port 6379
+
+■ kubectl expose pod redis --port=6379 --name redis-service --dry-run=client -o yaml
+(This will automatically use the pod’s labels as selectors)
+
+Or
+
+■ kubectl create service clusterip redis --tcp=6379:6379 --dry-run=client -o yaml
+(This will not use the pods labels as selectors, instead it will assume selectors as app=redis. You cannot pass in selectors as an option. So it does not work very well if your pod has a different label set. So generate the file and modify the selectors before creating the service)
+
+Create a Service named nginx of type NodePort to expose pod nginx’s port 80 on port 30080 on the nodes:
+
+■ kubectl expose pod nginx --port=80 --name nginx-service --type=NodePort --dry-run=client -o yaml
+(This will automatically use the pod’s labels as selectors, but you cannot specify the node port. You have to generate a definition file and then add the node port in manually before creating the service with the pod.)
+
+Or
+
+■ kubectl create service nodeport nginx --tcp=80:80 --node-port=30080 --dry-run=client -o yaml
+(This will not use the pods labels as selectors)
+
+Both the above commands have their own challenges. While one of it cannot accept a selector the other cannot accept a node port. I would recommend going with the `kubectl expose` command. If you need to specify a node port, generate a definition file using the same command and manually input the nodeport before creating the service.
+
+Reference:
+
+https://kubernetes.io/docs/reference/kubectl/conventions/
+
+----------------------------------------------------------------------------------------------------------------------
+Certification Tip: Formatting Output with kubectl
+------------------------------------------------------------------------------------------------------------------------
+The default output format for all kubectl commands is the human-readable plain-text format.
+
+The -o flag allows us to output the details in several different formats.
+
+**kubectl [command] [TYPE] [NAME] -o **
+
+Here are some of the commonly used formats:
+
+-o jsonOutput a JSON formatted API object.
+-o namePrint only the resource name and nothing else.
+-o wideOutput in the plain-text format with any additional information.
+-o yamlOutput a YAML formatted API object.
+Here are some useful examples:
+
+Output with JSON format:
+■ kubectl create namespace test-123 --dry-run -o json
+{
+    "kind": "Namespace",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "test-123",
+        "creationTimestamp": null
+    },
+    "spec": {},
+    "status": {}
+}
+
+
+Output with YAML format:
+■  kubectl create namespace test-123 --dry-run -o yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: test-123
+spec: {}
+status: {}
+
+Output with wide (additional details):
+Probably the most common format used to print additional details about the object:
+■  kubectl get pods -o wide
+NAME      READY   STATUS    RESTARTS   AGE     IP          NODE     NOMINATED NODE   READINESS GATES
+busybox   1/1     Running   0          3m39s   10.36.0.2   node01          none        none  
+ningx     1/1     Running   0          7m32s   10.44.0.1   node03          none        none 
+redis     1/1     Running   0          3m59s   10.36.0.1   node01          none        none
+
+For more details, refer:
+https://kubernetes.io/docs/reference/kubectl/overview/
+https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
+-------------------------------------------------------------------------------
+Practice Test - Imperative Commands
+-------------------------------------------------------------------------------
+
+Deploy a pod named nginx-pod using the nginx:alpine image.
+
+Use imperative commands only.
+
+kubectl run nginx-pod --image=nginx:alpine
+
+-----------------------------------------------------
+Deploy a redis pod using the redis:alpine image with the labels set to tier=db.
+kubectl run redis -l tier=db --image=redis:alpine
+OR
+kubectl run redis --image=redis:alpine --dry-run=client -oyaml > redis-pod.yaml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    tier: db
+  name: redis
+spec:
+  containers:
+  - image: redis:alpine
+    name: redis
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+  
+kubectl create -f redis-pod.yaml 
+-----------------------------------------------------
+Create a service redis-service to expose the redis application within the cluster on port 6379.
+kubectl expose pod redis --port=6379 --name redis-service
+
+
+ ➜  kubectl expose pod redis --port=6379 --name redis-service --dry-run=client -o yaml  > redis-pod.yaml
+
+controlplane ~ ➜  ls
+redis-pod.yaml  sample.yaml
+
+controlplane ~ ✖ kubectl create -f redis-pod.yaml 
+service/redis-service created
+
+controlplane ~ ➜  cat redis-pod.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    tier: db
+  name: redis-service
+spec:
+  ports:
+  - port: 6379
+    protocol: TCP
+    targetPort: 6379
+  selector:
+    tier: db
+status:
+  loadBalancer: {}
+
+controlplane ~ ➜  
+-----------------------------------------------------
+Create a deployment named webapp using the image kodekloud/webapp-color with 3 replicas.
+Try to use imperative commands only. Do not create definition files.
+
+
+kubectl create deployment webapp --image=kodekloud/webapp-color --replicas=3
+
+
+----------------------------------------------
+Create a new pod called custom-nginx using the nginx image and run it on container port 8080.
+kubectl run custom-nginx --image=nginx --port=8080
+
+--------------------
+Create a new namespace called dev-ns.
+
+
+Use imperative command
+kubectl create namespace dev-ns or kubectl create ns dev-ns
+------------------------------------------------
+Create a new deployment called redis-deploy in the dev-ns namespace with the redis image. It should have 2 replicas.
+Use imperative commands.
+
+kubectl create deployment redis-deploy --replicas=2 --image=redis -n dev-ns
+
+-----------------------------------------------
+Create a pod called httpd using the image httpd:alpine in the default namespace. Next, create a service of type ClusterIP by the same name (httpd). The target port for the service should be 80.
+
+kubectl run httpd --image=httpd:alpine --port=80 --expose
+
+
+controlplane ~ ✖ kubectl get svc
+
+
+NAME            TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
+kubernetes      ClusterIP   10.43.0.1     <none>        443/TCP    31m
+redis-service   ClusterIP   10.43.67.39   <none>        6379/TCP   16m
+
+controlplane ~ ➜  
+
+controlplane ~ ➜  
+
+controlplane ~ ➜  kubectl get svc,pods
+NAME                    TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
+service/kubernetes      ClusterIP   10.43.0.1     <none>        443/TCP    31m
+service/redis-service   ClusterIP   10.43.67.39   <none>        6379/TCP   17m
+
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/nginx-pod                 1/1     Running   0          24m
+pod/redis                     1/1     Running   0          19m
+pod/webapp-7bc4ff899b-lkr5g   1/1     Running   0          14m
+pod/webapp-7bc4ff899b-x7cfv   1/1     Running   0          14m
+pod/webapp-7bc4ff899b-5kdb7   1/1     Running   0          14m
+pod/custom-nginx              1/1     Running   0          11m
+
+controlplane ~ ➜  kubectl run httpd --image=httpd:alpine --port=80 --expose
+service/httpd created
+pod/httpd created
+
+controlplane ~ ➜  kubectl get svc,pods
+NAME                    TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
+service/kubernetes      ClusterIP   10.43.0.1     <none>        443/TCP    32m
+service/redis-service   ClusterIP   10.43.67.39   <none>        6379/TCP   17m
+service/httpd           ClusterIP   10.43.34.84   <none>        80/TCP     5s
+
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/nginx-pod                 1/1     Running   0          25m
+pod/redis                     1/1     Running   0          20m
+pod/webapp-7bc4ff899b-lkr5g   1/1     Running   0          14m
+pod/webapp-7bc4ff899b-x7cfv   1/1     Running   0          14m
+pod/webapp-7bc4ff899b-5kdb7   1/1     Running   0          14m
+pod/custom-nginx              1/1     Running   0          11m
+pod/httpd                     1/1     Running   0          5s
+
