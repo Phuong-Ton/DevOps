@@ -379,9 +379,82 @@ condition
 when <condition> if condition is true, that task is run
 tasks:
   when : ansible_os_family == Debian 
+-> property of tasks
 
 
 
+var: 
+  packages:
+    - name: ngix
+      require: True
+    - name: mysql
+      require: True
+    - name: apache
+      require: False
+	  
+tasks:
+  - name: Install "{{ item.name }}"
+    apt:
+	  name: "{{ item.name }}"
+	  state: present
+	when: item.required == True
+	loop: "{{ packages }}"
+	
+	|
+	v
+	
+tasks:
+  - name: Install ngix
+    apt:
+	  name: ngix
+	  state: present
+  - name: Install ngix
+    apt:
+	  name: ngix
+	  state: present
+		
+--------------
+Conditional and Register
+
+name: Check service status
+host: localhost
+tasks:
+  - command: service httpd status
+    -----------------
+	register: result
+	---------------------------
+  
+  - mail:
+    to: admin@d0001.local
+	subject: Service Alert
+	body: http Service id down
+	when: result.stdout.find('down') != -1
+	
+	
+Use the when condition to run this task only on node02 host
+---
+-  name: 'Execute a script on all web server nodes'
+   hosts: all
+   become: yes
+   tasks:
+     -  service: 'name=nginx state=started'
+        when: 'ansible_host=="node02"'
+	
+
+---
+- name: 'Am I an Adult or a Child?'
+  hosts: localhost
+  vars:
+    age: 25
+  tasks:
+    - name: I am a Child
+      command: 'echo "I am a Child"'
+      when: 'age < 18'
+    - name: I am an Adult
+      command: 'echo "I am an Adult"'
+      when: 'age >= 18'
+
+ 
 
 
 
