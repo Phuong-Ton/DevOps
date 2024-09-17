@@ -133,33 +133,22 @@ Cron Jobs 01:45
 Practice Test - Kubernetes - CKAD - Jobs and CronJobs
 Solution - Jobs and Cronjobs (optional) 09:07
 
-Services & Networking
-
-15 Lessons
-
-0%
-
-Module Content
-
-0% Complete
-
-0/15 Lessons
-
-Services 13:47
-Services - Cluster IP 04:10
-Practice Test - CKAD - Kubernetes Services
-Solution - Services (optional) 09:27
-Network Policies 07:56
-Developing network policies 11:35
-Practice Test - Kubernetes - CKAD - Network Policies
-Solution - Network Policies (optional) 14:11
-Ingress Networking 22:38
-Article: Ingress
-Practice Test - CKAD - Ingress Networking - 1
-Solution: Ingress Networking - 1 15:45
-Practice Test - CKAD - Ingress Networking - 2
-Solution: Ingress Networking - 2 14:34
-FAQ - What is the rewrite-target option?
+Module 7: Services & Networking - 15 Lessons
+7.1 Services 13:47
+7.2 Services - Cluster IP 04:10
+7.3 Practice Test - CKAD - Kubernetes Services
+7.4 Solution - Services (optional) 09:27
+7.5 Network Policies 07:56
+7.6 Developing network policies 11:35
+7.7 Practice Test - Kubernetes - CKAD - Network Policies
+7.8 Solution - Network Policies (optional) 14:11
+7.9 Ingress Networking 22:38
+7.10 Article: Ingress
+7.11 Practice Test - CKAD - Ingress Networking - 1
+7.12 Solution: Ingress Networking - 1 15:45
+7.13 Practice Test - CKAD - Ingress Networking - 2
+7.14 Solution: Ingress Networking - 2 14:34
+7.15 FAQ - What is the rewrite-target option?
 
 State Persistence
 

@@ -298,8 +298,6 @@ Using on environment variables
 		  name: config-map
 		  key: APP_COLOR
 10. Practice Test - Kubernetes - CKAD - ConfigMaps
-
-
 ---
 apiVersion: v1
 kind: Pod
@@ -502,29 +500,476 @@ spec:
 21. Solutions-Security Contexts 06:12
 22. Resource Requirements 14:51
 23.Practice Test - Kubernetes - CKAD - Resource Limits
+
+
+The elephant pod runs a process that consumes 15Mi of memory. Increase the limit of the elephant pod to 20Mi.
+
+
+Delete and recreate the pod if required. Do not modify anything other than the required fields.
+->
+
+Create the file elephant.yaml by running command kubectl get po elephant -o yaml > elephant.yaml and edit the file such as memory limit is set to 20Mi as follows:
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: elephant
+  namespace: default
+spec:
+  containers:
+  - args:
+    - --vm
+    - "1"
+    - --vm-bytes
+    - 15M
+    - --vm-hang
+    - "1"
+    command:
+    - stress
+    image: polinux/stress
+    name: mem-stress
+    resources:
+      limits:
+        memory: 20Mi
+      requests:
+        memory: 5Mi
+		
 24. Solutions-Resource Requirements 03:25
 25. Service Account 14:34
+■  kubectl create serviceaccount my-service_acc
+create token + object , and secret
+
+controlplane ~ ✖ kubectl create serviceaccount dashboard-sa
+serviceaccount/dashboard-sa created
+
+controlplane ~ ➜  cat /var/rbac
+cat: read error: Is a directory
+
+controlplane ~ ✖ ls  /var/rbac
+dashboard-sa-role-binding.yaml  pod-reader-role.yaml
+
+controlplane ~ ➜  cat /var/rbac/pod-reader-role.yaml 
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: default
+  name: pod-reader
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+
+controlplane ~ ➜  cat /var/rbac/dashboard-sa-role-binding.yaml 
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: dashboard-sa # Name is case sensitive
+  namespace: default
+roleRef:
+  kind: Role #this must be Role or ClusterRole
+  name: pod-reader # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io
+  
+  
+  
+kubectl create token dashboard-sa  then copy it to webapi for getting data from Kubernetes
+-----------------------------------------
+You shouldn't have to copy and paste the token each time. The Dashboard application is programmed to read token from the secret mount location. However currently, the default service account is mounted. Update the deployment to use the newly created ServiceAccount
+
+
+Edit the deployment to change ServiceAccount from default to dashboard-sa.
+->>>
+Use the kubectl edit command for the deployment and specify the serviceAccountName field inside the pod spec.
+OR
+
+Make use of the kubectl set command. Run the following command to use the newly created service account: - kubectl set serviceaccount deploy/web-dashboard dashboard-sa
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-dashboard
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: web-dashboard
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        name: web-dashboard
+    spec:
+      serviceAccountName: dashboard-sa
+      containers:
+      - image: gcr.io/kodekloud/customimage/my-kubernetes-dashboard
+        imagePullPolicy: Always
+        name: web-dashboard
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+		  
 26. Practice Test - Kubernetes - CKAD - Service Account
 27. Solutions-Service Account 08:04
 28. Stay Updated!
+To stay up to date about our new courses and discussions:
+
+Follow me on Twitter: @mmumshad
+https://twitter.com/x/migrate?tok=7b2265223a222f6d6d756d73686164222c2274223a313732363539333432327d05fa5b3eb929cb4ae974ba6409ca5e8b
+Subscribe to our Youtube Channel
+https://www.youtube.com/user/mmumshad?sub_confirmation=1
+Join our Facebook Group
+https://www.facebook.com/kodekloudtraining
+
+
 29. Taints and Tolerations 09:55
+Taint node and tolerate pod to schedule pod to the node
+kubectl taint nodes node-name key=value:taints-effect
+taints-effect: NoSchedule, PreferNoSchedule, and NoExecute
+NoSchedule: pod will not be schedule on the node
+PreferNoSchedule: the system will try to avoid placing a pod on then node, but that not guaranteed
+NoExecute: new node will be not schedule on the node and existing node is not execute
+------------------------------------------------------
+Taint node
+------------------------------------------------------
+kubectl taint nodes node1 app=blue:NoSchedule
+------------------------------------------------------
+Toleration POD at spec: in definition file
+------------------------------------------------------
+spec:
+  tolerations:
+    - key: "app"
+	  operator: "Equal"
+	  value: "blue"
+	  effect: "NoSchedule"
+
+Master node is automatically tainted to avoid pod schedule on master node
+
 30. Practice Test - Taints and Toleration
+1. Do any taints exist on node01 node?
+Run the command: kubectl describe node node01 | grep -i taints to check taint exists.
+
+2. Create a taint on node01 with key of spray, value of mortein and effect of NoSchedule
+
+kubectl taint nodes node01 spray=value:NoSchedule
+kubectl taint nodes node01 spray=mortein:NoSchedule --overwrite
+
+3. Create a new pod with the nginx image and pod name as mosquito.
+kubectl run mosquito --image=nginx
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mosquito
+spec:
+  containers:
+  - image: nginx
+    name: mosquito
+then run kubectl create -f <FILE-NAME>.yaml
+-> pendingstatus
+
+4. Create another pod named bee with the nginx image, which has a toleration set to the taint mortein
+controlplane ~ ➜  vi bee_pod.yaml
+
+controlplane ~ ➜  cat bee_pod.yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bee
+spec:
+  containers:
+  - image: nginx
+    name: bee
+  tolerations:
+    - key: "spray"
+      operator: "Equal"
+      value: "mortein"
+      effect: "NoSchedule"
+
+controlplane ~ ➜  kubectl create -f bee_pod.yaml 
+pod/bee created
+4. Remove the taint on controlplane, which currently has the taint effect of NoSchedule. "-" add minus after command taint
+Run the command: kubectl taint nodes controlplane node-role.kubernetes.io/control-plane:NoSchedule-
+controlplane ~ ➜  kubectl describe node controlplane | grep -i taint
+Taints:             node-role.kubernetes.io/control-plane:NoSchedule
+
+controlplane ~ ➜  kubectl get nodes
+NAME           STATUS   ROLES           AGE   VERSION
+controlplane   Ready    control-plane   17m   v1.30.0
+node01         Ready    <none>          16m   v1.30.0
+
+controlplane ~ ➜  kubectl taint nodes controlplane node-role.kubernetes.io/control-plane:NoSchedule
+error: node controlplane already has node-role.kubernetes.io/control-plane taint(s) with same effect(s) and --overwrite is false
+
+controlplane ~ ✖ kubectl taint nodes controlplane node-role.kubernetes.io/control-plane:NoSchedule-
+node/controlplane untainted
+
+controlplane ~ ➜  kubectl describe node controlplane | grep -i taint
+Taints:             <none>
+
 31. Node Selectors Logging 03:20
+Label Node command
+kubectl label nodes <node name> <label key>=<label value>
+example: kubectl lable nodes node1 size=Large
+
+at pod definition file
+spec:
+  nodeSelector:
+    size: Large
+
 32. Solution - Taints and Tolerations (Optional) 10:09
 33. Node Affinity 07:08
+Large and medium, NOT Small expresion can support by Node Affinity through advance capabilities
+
+at pod definition file 
+
+spec:
+  affinity:
+    nodeAffinity:
+	  requiredDuringSchedulingIgnoreDuringExecution:
+	    nodeSelectorTerms:
+		  - matchExpressions:
+		      key: "size"
+			  operator: "In"
+			  value: 
+			   - Large
+			   - Medium
+			   
+		  - matchExpressions:
+		      key: "size"
+			  operator: "NotIn"
+			  value: 
+			   - Small
+			   	  
+		  - matchExpressions:
+		      key: "size"
+			  operator: "Exists"
+
+33.1. requiredDuringSchedulingIgnoreDuringExecution
+33.2. preferredDuringSchedulingIgnoreDuringExecution
+33.3. requiredDuringSchedulingrequiredDuringExecution
+
+DuringScheduling: first time create pod
+DuringExecutiong: pod exist on the node
+
+required: must match
+preferred: if matching node not found, scheduler will ignorge this rule and scheduler available node to add this pod-> try your best to find nodes but not find push it anywhere
+ 
+If you can't explain it simply you don't understand it well enough.
+
+
 34. Practice Test - Node Affinity
+
+example: kubectl label nodes node1 size=Large
+
+1. Apply a label color=blue to node node01
+
+kubectl label nodes node01 color=blue
+
+2. 
+Create a new deployment named blue with the nginx image and 3 replicas.
+
+Run the command: kubectl create deployment blue --image=nginx --replicas=3
+
+
+controlplane ~ ➜  kubectl create -f deploy.yaml 
+deployment.apps/blue created
+
+controlplane ~ ➜  cat deploy.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blue
+  labels:
+    name: blue
+    app: app-blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: nginx-pod
+      app: app-blue
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+        name: nginx-pod
+        app: app-blue
+    spec:
+      containers:
+        - name: blue-nginx
+          image: nginx
+		  
+
+Check if controlplane and node01 have any taints on them that will prevent the pods to be scheduled on them. If there are no taints, the pods can be scheduled on either node.
+
+So run the following command to check the taints on both nodes.
+
+kubectl describe node controlplane | grep -i taints
+
+kubectl describe node node01 | grep -i taints
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      run: nginx
+  template:
+    metadata:
+      labels:
+        run: nginx
+    spec:
+      containers:
+      - image: nginx
+        imagePullPolicy: Always
+        name: nginx
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: color
+                operator: In
+                values:
+                - blue
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blue
+  labels:
+    name: blue
+    app: app-blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: nginx-pod
+      app: app-blue
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+        name: nginx-pod
+        app: app-blue
+    spec:
+      containers:
+        - name: blue-nginx
+          image: nginx
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: color
+                  operator: In
+                  values:
+                    - blue
+
+
+Run the command: kubectl get pods -o wide and see the Node column.
+
+3. Create a new deployment named red with the nginx image and 2 replicas, and ensure it gets placed on the controlplane node only.
+Use the label key - node-role.kubernetes.io/control-plane - which is already set on the controlplane node.
+
+                    node-role.kubernetes.io/control-plane=
+
+controlplane ~ ➜  kubectl create -f red_deploy.yaml 
+deployment.apps/red created
+
+controlplane ~ ➜  cat red_deploy.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: red
+  labels:
+    name: red
+    app: app-red
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: nginx-red-pod
+      app: app-red
+  template:
+    metadata:
+      name: nginx-red-pod
+      labels:
+        name: nginx-red-pod
+        app: app-red
+    spec:
+      containers:
+        - name: red-nginx
+          image: nginx
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: 'node-role.kubernetes.io/control-plane'
+                  operator: "Exist
+
 35. Solution - Node Affinity (Optional) 10:13
+Make sure you check out these tips and tricks from other students who have cleared the exam: https://medium.com/@harioverhere/ckad-certified-kubernetes-application-developer-my-journey-3afb0901014
+
+
 36. Taints & Tolerations vs Node Affinity
+Blue Red Green NoColor NoColor 
+
+
+Node-Red Node-Blue Node-Green Node01
+
+-> Step 1: create Label color=red, color=blue, color=green on  Node-Red Node-Blue Node-Green
+kubectl label nodes Node-Blue color=blue
+
+-> Step 2: edit deploy.yaml at template: spec:
+spec:
+	template: 
+		spec:
+		  affinity:
+			nodeAffinity:
+			  requiredDuringSchedulingIgnoredDuringExecution:
+				nodeSelectorTerms:
+				  - matchExpressions:
+					- key: 'color'
+					  operator: "In"
+					  values:
+						- blue
+	--> Step 3: set up taint NoSchedule on Node-Red Node-Blue Node-Green
+kubectl taint nodes Node-blue spray=color:NoSchedule
+
+
+--> Step 4: setup toleration on deploy definition template: spec:
+spec:
+	template:
+		spec:
+		  tolerations:
+			- key: "spray"
+			  operator: "Equal"
+			  value: "color"
+			  effect: "NoSchedule"
 37. Certification Tips - Student Tips
-
-Modual 4: Multi-Container Pods - 6 Lessons
-1. Multi-Container Pods 04:34
-2. Practice Tests - Kubernetes CKAD - Multi Container Pods
-3. Solution - Multi-Container Pods (Optional) 15:09
-4. Init Containers
-5. PRACTICE TEST – INIT CONTAINERS
-6. Solution – Init Containers (Optional) 07:21
-
 
 
 
