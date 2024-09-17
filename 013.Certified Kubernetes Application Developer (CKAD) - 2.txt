@@ -291,35 +291,214 @@ containers:
 or
 Using on environment variables
 
-  env:
+ - env:
     - name: APP_COLOR
 	  valuefrom: 
 	    configMapRef
 		  name: config-map
 		  key: APP_COLOR
-		  
-	  
-
-
-
-
-	  
-	  
-	 
-
-
-
 10. Practice Test - Kubernetes - CKAD - ConfigMaps
+
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: webapp-color
+  name: webapp-color
+  namespace: default
+spec:
+  containers:
+  - env:
+    - name: APP_COLOR
+      value: green
+    image: kodekloud/webapp-color
+    name: webapp-color
+	
+	
+Run the command kubectl create configmap  webapp-config-map --from-literal=APP_COLOR=darkblue --from-literal=APP_OTHER=disregard
+controlplane ~ ➜  kubectl create -f webapp-config-map.yaml 
+configmap/webapp-config-map created
+
+controlplane ~ ➜  cat webapp-config-map.yaml 
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: webapp-config-map
+data:
+  APP_COLOR: darkblue
+  APP_OTHER: disregard
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: webapp-color
+  name: webapp-color
+  namespace: default
+spec:
+  containers:
+  - env:
+    - name: APP_COLOR
+      valueFrom:
+       configMapKeyRef:
+         name: webapp-config-map
+         key: APP_COLOR
+    image: kodekloud/webapp-color
+    name: webapp-color
 11. Secrets 08:20
+controlplane ~ ✖ echo -n "sql01" | base64
+c3FsMDE=
+
+controlplane ~ ➜  echo -n "root" | base64
+cm9vdA==
+
+controlplane ~ ➜  echo -n "password123" | base64
+cGFzc3dvcmQxMjM=
+
+controlplane ~ ➜  vi sample.yaml 
+
+controlplane ~ ➜  kubectl create -f sample.yaml 
+secret/db-secret created
+
+controlplane ~ ➜  cat sample.yaml 
+apiVersion: v1
+kind: Secret
+metadata: 
+  name: db-secret
+data:
+  DB_Host: c3FsMDE=
+  DB_User: cm9vdA==
+  DB_Password: cGFzc3dvcmQxMjM=
+
+
+
+controlplane ~ ➜  kubectl create -f create_pod.yaml 
+pod/webapp-pod created
+
+controlplane ~ ➜  cat create_pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: webapp-pod
+  name: webapp-pod
+spec:
+  containers:
+  - image: kodekloud/simple-webapp-mysql
+    name: webapp
+    envFrom:
+      - secretRef:
+          name: db-secret
+  
+
 12. Solution: ConfigMaps (Optional) 08:43
 13. A quick note about Secrets!
+Remember that secrets encode data in base64 format. Anyone with the base64 encoded secret can easily decode it. As such the secrets can be considered as not very safe.
+
+The concept of safety of the Secrets is a bit confusing in Kubernetes. The Kubernetes documentation page and a lot of blogs out there refer to secrets as a “safer option” to store sensitive data. They are safer than storing in plain text as they reduce the risk of accidentally exposing passwords and other sensitive data. In my opinion, it’s not the secret itself that is safe, it is the practices around it.
+
+Secrets are not encrypted, so it is not safer in that sense. However, some best practices around using secrets make it safer. As in best practices like:
+
+Not checking in secret object definition files to source code repositories.
+Enabling Encryption at Rest for Secrets so they are stored encrypted in ETCD.
+Also, the way Kubernetes handles secrets. Such as:
+
+A secret is only sent to a node if a pod on that node requires it.
+
+Kubelet stores the secret into a tmpfs so that the secret is not written to disk storage.
+
+Once the Pod that depends on the secret is deleted, kubelet will delete its local copy of the secret data as well.
+
+Read about the protections and risks of using secrets here
+
+Having said that, there are other better ways of handling sensitive data like passwords in Kubernetes, such as using tools like Helm Secrets, and HashiCorp Vault. I hope to give a lecture on these in the future.
+
 14. Practice Test - Kubernetes - CKAD - Secrets
 15. Additional Resource
+Dive deep into the world of Kubernetes security with our comprehensive guide to Secret Store CSI Driver.
+https://www.youtube.com/watch?v=MTnQW9MxnRI
 16. Solution: Secrets (Optional) 09:53
 17. Demo: Encrypting Secret Data at Rest 18:47
 18. Pre-requisite - Security in Docker 05:37
 19. Security Contexts 01:57
 20. Practice Test - Kubernetes - CKAD - Security Contexts
+
+kubectl exec ubuntu-sleeper -- whoami
+------------------------------------------------------------------
+Edit the pod ubuntu-sleeper to run the sleep process with user ID 1010.
+Note: Only make the necessary changes. Do not modify the name or image of the pod.
+
+kubectl delete po ubuntu-sleeper 
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ubuntu-sleeper
+  namespace: default
+spec:
+  securityContext:
+    runAsUser: 1010
+  containers:
+  - command:
+    - sleep
+    - "4800"
+    image: ubuntu
+    name: ubuntu-sleeper
+----------------------------------------------------
+Update pod ubuntu-sleeper to run as Root user and with the SYS_TIME capability.
+
+
+Note: Only make the necessary changes. Do not modify the name of the pod.
+>>
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ubuntu-sleeper
+  namespace: default
+spec:
+  containers:
+  - command:
+    - sleep
+    - "4800"
+    image: ubuntu
+    name: ubuntu-sleeper
+    securityContext:
+      capabilities:
+        add: ["SYS_TIME"]
+		
+
+--------------------------------------------------------------------------------
+controlplane ~ ➜  kubectl delete po ubuntu-sleeper --force
+Warning: Immediate deletion does not wait for confirmation that the running resource has been terminated. The resource may continue to run on the cluster indefinitely.
+pod "ubuntu-sleeper" force deleted
+
+controlplane ~ ➜  vi new_ubuntu.yaml
+
+controlplane ~ ➜  kubectl create -f new_ubuntu.yaml 
+pod/ubuntu-sleeper created
+
+controlplane ~ ➜  cat new_ubuntu.yaml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ubuntu-sleeper
+  namespace: default
+spec:
+  containers:
+  - command:
+    - sleep
+    - "4800"
+    image: ubuntu
+    name: ubuntu-sleeper
+    securityContext:
+      capabilities:
+        add: ["SYS_TIME","NET_ADMIN"]
+
 21. Solutions-Security Contexts 06:12
 22. Resource Requirements 14:51
 23.Practice Test - Kubernetes - CKAD - Resource Limits
