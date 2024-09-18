@@ -1,0 +1,710 @@
+7.9 Ingress Networking 22:38
+Online ap
+
+<node ip>:38080 ---> DNS:online.store.com:38080 ---> proxy server(80)---->online.store.com <- User just use it
+                                                         |
+														 |
+													   38080
+									------------------------------------------------------					 
+										 NodePort service (wear) link to WEAR POD
+														 |
+														 |
+										 WEAR POD - Deployment cover this pod
+														 |
+														 |
+												 ClusterIP service (db) 
+														 |
+														 |
+													 MySQL POD                 - On-Premiss
+                                    -------------------------------------------------------
+if using AWS, GCP, Azure
+                                                 gcp load-balancer(80)---> load-balancer IP <--- online.store.com 
+                                                         |
+														 |
+													   38080
+									------------------------------------------------------					 
+										 LOADBALACER service (wear) link to WEAR POD
+														 |
+														 |
+										 WEAR POD - Deployment cover this pod
+														 |
+														 |
+												 ClusterIP service (db) 
+														 |
+														 |
+													 MySQL POD                      - GCP -
+                                    -------------------------------------------------------
+If another app, and require https
+need config firewall 
+HTTPS:        http://    -> https://   <----- need certification     
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+                     online.store.com ----->load-balancer IP <---- another load-balancer(/wear and /video) 
+																		        |
+																				|
+														 |------------------------------------------|				
+                                               gcp load-balancer(80)                     gcp load-balancer-2 (80)  
+                                                         |                                          |
+														 |											|
+													   38080									  38082
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+										 LOADBALACER service (wear) link to WEAR POD      LOADBALACER service(Video)
+														 |                                         |       
+														 |                                         |
+										 WEAR POD - Deployment cover this pod              Video Pod - Deployment
+														 |                                         |
+														 |                                         |
+												 ClusterIP service (db)                        ClusterIP service 
+														 |                                         |
+														 |                                         |
+													 MySQL POD                                Postgres POD                            - GCP -
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Manage all of firewalls, load-balancer, https within the kubernetes cluster --> mapping in definition file
+----> Ingress com in : help user access your application using a URL that can config to a route. difference service mapping with difference URL path
+and implement SSL
+
+
+
+												                         38080 
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+														 NodePort server/ LOADBALACER service									             
+         									Ingress - layer 7 (SSL + load-balancer + Firewall setting easier)
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+														 |                                         |       
+												service (wear)                             service(Video)
+														 |                                         |       
+														 |                                         |
+										 WEAR POD - Deployment cover this pod              Video Pod - Deployment
+														 |                                         |
+														 |                                         |
+												 ClusterIP service (db)                        ClusterIP service 
+														 |                                         |
+														 |                                         |
+													 MySQL POD                                Postgres POD                            - GCP -
+
+
+Ingress = Deploy + Configure
+
+Deploy support solution: Ingress Controller NGINX -> need to install it --> must deploy one like GCE, Nginx, HAproxy
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata: nginx-ingress-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+	  name: nginx-ingress
+  template:
+	metadata:
+	  labels:
+	    name: nginx-ingress
+	spec:
+	  containers:
+		- name: nginx-ingress-controller
+		  image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.21.0
+	  args:
+	    - /nginx-ingress-controller
+		- --configmap=$(POD_NAMESPACE)/nginx-configuration
+	  envs:
+	    - name: POD_NAMESPACE
+		  valueFrom:
+		     fieldRef:
+			   fieldPath:metadata.namespace
+	  ports:
+	    - name: http
+		  port: 80
+		- name: https
+		  port: 443
+			   
+--------------------------------------------------------------------------------------
+Service to link this deploy
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-ingress
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+	  nodePort: 80
+	  protocol: TCP
+	  name: http
+	- port: 443
+	  nodePort: 443
+	  protocol: TCP
+	  name: https
+  selector:
+    matchLabels:
+	  name: nginx-ingress
+	  
+--------------------------------------------------
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nginx-ingress-serviceaccount
+  
+
+---------------------------------------------------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-configuration
+  
+
+Ingress resource:  how to use ingress
+each RULES base on 1 URL example
+my.online.shop.com
+sale.online.shop.com
+....
+ingress-wear.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata: ingress-wear
+spec:
+  backend:
+    serviceName: wear-service
+	servicePort: 80
+	
+	
+	
+
+example
+
+1 rule: my.online.shop.com
+with 2 paths: my.online.shop.com/wear and my.online.shop.com/video 
+ingress-wear-watch.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata: ingress-wear-watch
+spec:
+  rules:
+	- http:
+		paths:
+		  - path: /wear
+		    backend:
+			  serviceName: wear-service
+			  servicePort: 80
+		  - path: /watch
+			backend:
+			  serviceName: video-service
+			  servicePort: 80			    
+
+2 rule: wear.online.shop.com and watch.online.shop.com
+
+ingress-2_rules.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata: ingress-wear-watch-2
+spec:
+  rules:
+	- host: wear.online.shop.com
+	  http:
+		paths:
+		  - paths:
+		    backend:
+			  serviceName: wear-service
+			  servicePort: 80
+	- host: watch.online.shop.com
+	  http:
+		paths:
+		  - paths:
+			backend:
+			  serviceName: video-service
+			  servicePort: 80			    
+
+
+---------------------------------------------------
+ingress-wear-watch.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: ingress-wear-watch
+spec:
+  rules:
+	- http:
+		paths:
+		  - path: /wear
+		    pathType: Prefix
+		    backend:
+			  serviceName: wear-service
+			  port:
+			    number: 80
+		  - path: /watch
+		    pathType:
+			backend: Prefix
+			  serviceName: watch-service
+			  port: 
+			    number: 80			    
+
+--------------------------------------
+7.10 Article: Ingress
+n this article, we will see what changes have been made in previous and current versions of Ingress.
+
+Like in apiVersion, serviceName and servicePort etc.
+
+
+
+Now, in k8s version 1.20+, we can create an Ingress resource in the imperative way like this:-
+
+Format -
+
+kubectl create ingress  --rule="host/path=service:port"
+Example -
+
+kubectl create ingress ingress-test --rule="wear.my-online-store.com/wear*=wear-service:80"
+Find more information and examples in the below reference link:-
+
+https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#-em-ingress-em-
+
+References:-
+
+https://kubernetes.io/docs/concepts/services-networking/ingress
+
+https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types
+
+7.11 Practice Test - CKAD - Ingress Networking - 1
+We have deployed Ingress Controller, resources and applications. Explore the setup.
+Note: They are in different namespaces.
+
+controlplane ~ ✖ k get ns
+NAME              STATUS   AGE
+app-space         Active   2m7s
+default           Active   6m21s
+ingress-nginx     Active   2m5s
+kube-flannel      Active   6m17s
+kube-node-lease   Active   6m21s
+kube-public       Active   6m21s
+kube-system       Active   6m21s
+
+controlplane ~ ➜  k get deploy -n ingress-nginx 
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+ingress-nginx-controller   1/1     1            1           2m43
+
+controlplane ~ ➜  k get pod -n ingress-nginx 
+NAME                                        READY   STATUS      RESTARTS   AGE
+ingress-nginx-admission-create-rst9g        0/1     Completed   0          3m8s
+ingress-nginx-admission-patch-m7lsw         0/1     Completed   0          3m8s
+ingress-nginx-controller-597d7b4fbd-zjc5v   1/1     Running     0          3m8s
+
+controlplane ~ ➜  k get pod -A
+NAMESPACE       NAME                                        READY   STATUS      RESTARTS   AGE
+app-space       default-backend-78f6fb8b4-fhxmh             1/1     Running     0          4m49s
+app-space       webapp-video-74bdc86cb8-pv4f8               1/1     Running     0          4m50s
+app-space       webapp-wear-6f8947f6cc-42gl5                1/1     Running     0          4m50s
+ingress-nginx   ingress-nginx-admission-create-rst9g        0/1     Completed   0          4m47s
+ingress-nginx   ingress-nginx-admission-patch-m7lsw         0/1     Completed   0          4m47s
+ingress-nginx   ingress-nginx-controller-597d7b4fbd-zjc5v   1/1     Running     0          4m47s
+kube-flannel    kube-flannel-ds-m4vrp                       1/1     Running     0          8m45s
+kube-system     coredns-768b85b76f-7xdwq                    1/1     Running     0          8m45s
+kube-system     coredns-768b85b76f-9s28d                    1/1     Running     0          8m45s
+kube-system     etcd-controlplane                           1/1     Running     0          9m2s
+kube-system     kube-apiserver-controlplane                 1/1     Running     0          9m
+kube-system     kube-controller-manager-controlplane        1/1     Running     0          9m
+kube-system     kube-proxy-z84tf                            1/1     Running     0          8m45s
+kube-system     kube-scheduler-controlplane                 1/1     Running     0          9m
+
+
+controlplane ~ ➜  k get svc -A 
+NAMESPACE       NAME                                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+app-space       default-backend-service              ClusterIP   10.110.240.239   <none>        80/TCP                       7m3s
+app-space       video-service                        ClusterIP   10.104.230.38    <none>        8080/TCP                     7m3s
+app-space       wear-service                         ClusterIP   10.111.153.52    <none>        8080/TCP                     7m4s
+default         kubernetes                           ClusterIP   10.96.0.1        <none>        443/TCP                      11m
+ingress-nginx   ingress-nginx-controller             NodePort    10.97.26.39      <none>        80:30080/TCP,443:32103/TCP   7m1s
+ingress-nginx   ingress-nginx-controller-admission   ClusterIP   10.109.203.26    <none>        443/TCP                      7m1s
+kube-system     kube-dns                             ClusterIP   10.96.0.10       <none>        53/UDP,53/TCP,9153/TCP       11m
+
+controlplane ~ ➜  k describe deploy ingress-nginx-controller -n ingress-nginx 
+controlplane ~ ➜  k get ingress  -n app-space 
+NAME                 CLASS    HOSTS   ADDRESS       PORTS   AGE
+ingress-wear-watch   <none>   *       10.97.26.39   80      12m
+
+controlplane ~ ✖ k describe ingress  -n app-space 
+Name:             ingress-wear-watch
+Labels:           <none>
+Namespace:        app-space
+Address:          10.97.26.39
+Ingress Class:    <none>
+Default backend:  <default>
+Rules:
+  Host        Path  Backends
+  ----        ----  --------
+  *           
+              /wear    wear-service:8080 (10.244.0.4:8080)
+              /watch   video-service:8080 (10.244.0.5:8080)
+Annotations:  nginx.ingress.kubernetes.io/rewrite-target: /
+              nginx.ingress.kubernetes.io/ssl-redirect: false
+Events:
+  Type    Reason  Age                From                      Message
+  ----    ------  ----               ----                      -------
+  Normal  Sync    12m (x2 over 12m)  nginx-ingress-controller  Scheduled for sync
+  
+  
+Execute the command kubectl describe ingress --namespace app-space and examine the Default backend field. If it displays <default>, proceed to inspect the ingress controller's manifest by executing kubectl get deploy ingress-nginx-controller -n ingress-nginx -o yaml. In the manifest, search for the argument --default-backend-service
+
+Run the command: kubectl edit ingress --namespace app-space and change the path to the video streaming application to /stream.
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  name: ingress-wear-watch
+  namespace: app-space
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: wear-service
+            port: 
+              number: 8080
+        path: /wear
+        pathType: Prefix
+      - backend:
+          service:
+            name: video-service
+            port: 
+              number: 8080
+        path: /stream
+        pathType: Prefix
+You are requested to add a new path to your ingress to make the food delivery application available to your customers.
+
+
+Make the new application available at /eat.
+
+controlplane ~ ✖ k get ingress ingress-wear-watch -n app-space -o yaml > ingress-wear-watch.yaml
+
+controlplane ~ ➜  cat ingress-wear-watch.yaml 
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  creationTimestamp: "2024-09-18T20:18:01Z"
+  generation: 3
+  name: ingress-wear-watch
+  namespace: app-space
+  resourceVersion: "3177"
+  uid: 90516404-61b6-49d1-8a9a-f7cad876fd81
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: wear-service
+            port:
+              number: 8080
+        path: /wear
+        pathType: Prefix
+      - backend:
+          service:
+            name: video-service
+            port:
+              number: 8080
+        path: /stream
+        pathType: Prefix
+      - backend:
+          service:
+            name: food-service
+            port:
+              number: 8080
+        path: /eat
+        pathType: Prefix
+status:
+  loadBalancer:
+    ingress:
+    - ip: 10.97.26.39
+
+controlplane ~ ➜  cat ingress-critical.yaml 
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-pay
+  namespace: critical-space
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: pay-service
+            port:
+              number: 8282
+        path: /pay
+        pathType: Prefix
+
+7.12 Solution: Ingress Networking - 1 15:45
+7.13 Practice Test - CKAD - Ingress Networking - 2
+
+
+The NGINX Ingress Controller requires a ConfigMap object. Create a ConfigMap object with name ingress-nginx-controller in the ingress-nginx namespace.
+No data needs to be configured in the ConfigMap.
+
+
+kubectl create ns ingress-nginx
+kubectl create configmap ingress-nginx-controller --namespace ingress-nginx
+The NGINX Ingress Controller requires two ServiceAccounts. Create both ServiceAccount with name ingress-nginx and ingress-nginx-admission in the ingress-nginx namespace.
+
+
+kubectl create ServiceAccount ingress-nginx,ingress-nginx-admission -ns ingress-nginx
+Run the below commands: 
+kubectl create serviceaccount ingress-nginx --namespace ingress-nginx
+kubectl create serviceaccount ingress-nginx-admission --namespace ingress-nginx
+kubectl get serviceaccount  ingress-nginx
+
+kubectl get roles -n ingress-nginx
+kubectl get rolebindings -n ingress-nginx
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/version: 1.1.2
+    helm.sh/chart: ingress-nginx-4.0.18
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  minReadySeconds: 0
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/instance: ingress-nginx
+      app.kubernetes.io/name: ingress-nginx
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: controller
+        app.kubernetes.io/instance: ingress-nginx
+        app.kubernetes.io/name: ingress-nginx
+    spec:
+      containers:
+      - args:
+        - /nginx-ingress-controller
+        - --publish-service=$(POD_NAMESPACE)/ingress-nginx-controller
+        - --election-id=ingress-controller-leader
+        - --watch-ingress-without-class=true
+        - --default-backend-service=app-space/default-http-backend
+        - --controller-class=k8s.io/ingress-nginx
+        - --ingress-class=nginx
+        - --configmap=$(POD_NAMESPACE)/ingress-nginx-controller
+        - --validating-webhook=:8443
+        - --validating-webhook-certificate=/usr/local/certificates/cert
+        - --validating-webhook-key=/usr/local/certificates/key
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: LD_PRELOAD
+          value: /usr/local/lib/libmimalloc.so
+        image: registry.k8s.io/ingress-nginx/controller:v1.1.2@sha256:28b11ce69e57843de44e3db6413e98d09de0f6688e33d4bd384002a44f78405c
+        imagePullPolicy: IfNotPresent
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /wait-shutdown
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: controller
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        - containerPort: 443
+          name: https
+          protocol: TCP
+        - containerPort: 8443
+          name: webhook
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 90Mi
+        securityContext:
+          allowPrivilegeEscalation: true
+          capabilities:
+            add:
+            - NET_BIND_SERVICE
+            drop:
+            - ALL
+          runAsUser: 101
+        volumeMounts:
+        - mountPath: /usr/local/certificates/
+          name: webhook-cert
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        kubernetes.io/os: linux
+      serviceAccountName: ingress-nginx
+      terminationGracePeriodSeconds: 300
+      volumes:
+      - name: webhook-cert
+        secret:
+          secretName: ingress-nginx-admission
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/version: 1.1.2
+    helm.sh/chart: ingress-nginx-4.0.18
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+    nodePort: 30080
+  selector:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+  type: NodePort
+  
+
+
+
+
+Create the ingress resource to make the applications available at /wear and /watch on the Ingress service.
+
+Also, make use of rewrite-target annotation field: -
+
+nginx.ingress.kubernetes.io/rewrite-target: /
+Ingress resource comes under the namespace scoped, so don't forget to create the ingress in the app-space namespace.
+
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-wear-watch
+  namespace: app-space
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /wear
+        pathType: Prefix
+        backend:
+          service:
+           name: wear-service
+           port: 
+            number: 8080
+      - path: /watch
+        pathType: Prefix
+        backend:
+          service:
+           name: video-service
+           port:
+            number: 8080
+
+7.14 Solution: Ingress Networking - 2 14:34
+7.15 FAQ - What is the rewrite-target option?
+Different ingress controllers have different options that can be used to customize the way it works. NGINX Ingress controller has many options that can be seen here. I would like to explain one such option that we will use in our labs. The Rewrite target option.
+
+Our watch app displays the video streaming webpage at http://:/
+
+Our wear app displays the apparel webpage at http://:/
+
+We must configure Ingress to achieve the below. When a user visits the URL on the left, his request should be forwarded internally to the URL on the right. Note that the /watch and /wear URL paths are what we configure on the ingress controller so we can forward users to the appropriate application in the backend. The applications don’t have this URL/Path configured on them:
+
+http://:/watch –> http://:/
+
+http://:/wear –> http://:/
+
+Without the rewrite-target option, this is what would happen:
+
+http://:/watch –> http://:/watch
+
+http://:/wear –> http://:/wear
+
+Notice watch and wear at the end of the target URLs. The target applications are not configured with /watch or /wear paths. They are different applications built specifically for their purpose, so they don’t expect /watch or /wear in the URLs. And as such, the requests would fail and throw a 404 not found error.
+
+To fix that, we want to “Re-write” the URL when the request is passed on to the watch or wear applications. We don’t want to pass in the same path that the user typed in. So, we specify the rewrite-target option. This rewrites the URL by replacing whatever is under rules->http->paths->path , which happens to be /pay , in this case, the value in rewrite-target. This works just like a search and replace function.
+
+For example: replace(path, rewrite-target)
+
+In our case: replace("/path","/")
+
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test-ingress
+  namespace: critical-space
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /pay
+        backend:
+          serviceName: pay-service
+          servicePort: 8282
+In another example given here, this could also be:
+
+replace("/something(/|$)(.*)", "/$2")
+
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  name: rewrite
+  namespace: default
+spec:
+  rules:
+  - host: rewrite.bar.com
+    http:
+      paths:
+      - backend:
+          serviceName: http-svc
+          servicePort: 80
+        path: /something(/|$)(.\*)
