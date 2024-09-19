@@ -180,13 +180,13 @@ Operator Framework 03:00
 
 
 Module 10: Helm Fundamentals - 7 Lessons
-Helm Introduction 06:23
-Install Helm 01:29
-Practice Test – Install Helm
-Solution: Install Helm 02:10
-Helm Concept 06:09
-Practice Test – Helm Concepts
-Solution: Helm Concepts 04:31
+10.1 Helm Introduction 06:23
+10.2 Install Helm 01:29
+10.3 Practice Test – Install Helm
+10.4 Solution: Install Helm 02:10
+10.5 Helm Concept 06:09
+10.6 Practice Test – Helm Concepts
+10.7 Solution: Helm Concepts 04:31
 
 Additional Practice - Kubernetes Challenges (Optional)
 
