@@ -1,0 +1,28 @@
+Module 5: Observability
+Readiness Probes 08:11 ★
+Liveness Probes 03:19 ★
+Practice Test - Kubernetes - CKAD - Readiness Probes
+Solution-Readiness and Liveness Probes 09:30
+Logging 02:35
+Practice Test - Kubernetes - CKAD - Logging
+Solution - Logging (optional) 02:48
+Monitoring 04:14
+Practice Test - Kubernetes - CKAD - Monitoring
+Solution - Monitoring (optional) 04:21
+ 
+Module 6: POD Design
+6.1 Labels, Selectors & Annotations
+6.2 Practice Test - Kubernetes - CKAD - Labels and Selectors
+6.3 Solution - Labels and Selectors (optional) 05:33
+6.4 Rolling Updates & Rollbacks 06:42
+6.5 Updating a Deployment
+6.6 Practice Test - Kubernetes - CKAD - Rolling Updates and Rollbacks
+6.7 Solution: Rolling Updates and Rollbacks (optional) 09:05
+6.8 Deployment Strategy - Blue Green 04:35
+6.9 Deployment Strategy - Canary 05:21
+6.10 Practice Test - Deployment strategies
+6.11 Solution: Deployment strategies 05:49
+6.12 Jobs 08:07
+6.13 Cron Jobs 01:45
+6.14 Practice Test - Kubernetes - CKAD - Jobs and CronJobs
+6.15 Solution - Jobs and Cronjobs (optional) 09:07

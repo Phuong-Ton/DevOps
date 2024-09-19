@@ -25,7 +25,7 @@ Module 2: Core Concepts - 25 Lessons
 15. Practice Test - Kubernetes - CKAD - Deployments
 16. Solution: Deployments (optional) 07:07
 17. Recap - Namespaces 08:23
-18. Practice Test - Kubernetes - CKAD - Namespaces
+18. Practice Test - Kubernetes - CKAD - Namespaces  ★
 19. Solution: Namespaces (optional) 06:04
 20. Certification Tip - Imperative Commands!
 21. Certification Tip: Formatting Output with kubectl
@@ -43,21 +43,21 @@ Module3: Configuration - 37 Lessons
 6. Practice Test - Kubernetes - CKAD - Commands and Arguments
 7. Solution: Commands and Arguments (Optional) 19:31
 8. Environment Variables 01:08
-9. ConfigMaps 05:12
-10. Practice Test - Kubernetes - CKAD - ConfigMaps
-11. Secrets 08:20
+9. ConfigMaps 05:12 ★
+10. Practice Test - Kubernetes - CKAD - ConfigMaps ★
+11. Secrets 08:20 ★
 12. Solution: ConfigMaps (Optional) 08:43
 13. A quick note about Secrets!
 14. Practice Test - Kubernetes - CKAD - Secrets
 15. Additional Resource
 16. Solution: Secrets (Optional) 09:53
-17. Demo: Encrypting Secret Data at Rest 18:47
+17. Demo: Encrypting Secret Data at Rest 18:47 ★
 18. Pre-requisite - Security in Docker 05:37
 19. Security Contexts 01:57
-20. Practice Test - Kubernetes - CKAD - Security Contexts
+20. Practice Test - Kubernetes - CKAD - Security Contexts  ★
 21. Solutions-Security Contexts 06:12
 22. Resource Requirements 14:51
-23.Practice Test - Kubernetes - CKAD - Resource Limits
+23.Practice Test - Kubernetes - CKAD - Resource Limits ★
 24. Solutions-Resource Requirements 03:25
 25. Service Account 14:34
 26. Practice Test - Kubernetes - CKAD - Service Account
@@ -66,72 +66,50 @@ Module3: Configuration - 37 Lessons
 29. Taints and Tolerations 09:55
 30. Practice Test - Taints and Toleration
 31. Node Selectors Logging 03:20
-32. Solution - Taints and Tolerations (Optional) 10:09
+32. Solution - Taints and Tolerations (Optional) 10:09 ★★
 33. Node Affinity 07:08
-34. Practice Test - Node Affinity
+34. Practice Test - Node Affinity ★★
 35. Solution - Node Affinity (Optional) 10:13
-36. Taints & Tolerations vs Node Affinity
+36. Taints & Tolerations vs Node Affinity  ★★★
 37. Certification Tips - Student Tips
 
-Modual 4: Multi-Container Pods - 6 Lessons
+Module 4: Multi-Container Pods - 6 Lessons
 1. Multi-Container Pods 04:34
 2. Practice Tests - Kubernetes CKAD - Multi Container Pods
 3. Solution - Multi-Container Pods (Optional) 15:09
-4. Init Containers
-5. PRACTICE TEST – INIT CONTAINERS
+4. Init Containers ★
+5. PRACTICE TEST – INIT CONTAINERS ★
 6. Solution – Init Containers (Optional) 07:21
 
 
-Observability
-
-10 Lessons
-
-0%
-
-Module Content
-
-0% Complete
-
-0/10 Lessons
-
-Readiness Probes 08:11
-Liveness Probes 03:19
-Practice Test - Kubernetes - CKAD - Readiness Probes
-Solution-Readiness and Liveness Probes 09:30
-Logging 02:35
-Practice Test - Kubernetes - CKAD - Logging
-Solution - Logging (optional) 02:48
-Monitoring 04:14
-Practice Test - Kubernetes - CKAD - Monitoring
-Solution - Monitoring (optional) 04:21
-
-POD Design
-
-15 Lessons
-
-0%
-
-Module Content
-
-0% Complete
-
-0/15 Lessons
-
-Labels, Selectors & Annotations
-Practice Test - Kubernetes - CKAD - Labels and Selectors
-Solution - Labels and Selectors (optional) 05:33
-Rolling Updates & Rollbacks 06:42
-Updating a Deployment
-Practice Test - Kubernetes - CKAD - Rolling Updates and Rollbacks
-Solution: Rolling Updates and Rollbacks (optional) 09:05
-Deployment Strategy - Blue Green 04:35
-Deployment Strategy - Canary 05:21
-Practice Test - Deployment strategies
-Solution: Deployment strategies 05:49
-Jobs 08:07
-Cron Jobs 01:45
-Practice Test - Kubernetes - CKAD - Jobs and CronJobs
-Solution - Jobs and Cronjobs (optional) 09:07
+Module 5: Observability
+5.1 Readiness Probes 08:11 ★
+5.2 Liveness Probes 03:19 ★
+5.3 Practice Test - Kubernetes - CKAD - Readiness Probes
+5.4 Solution-Readiness and Liveness Probes 09:30
+5.5 Logging 02:35
+5.6 Practice Test - Kubernetes - CKAD - Logging
+5.7 Solution - Logging (optional) 02:48
+5.8 Monitoring 04:14
+5.9 Practice Test - Kubernetes - CKAD - Monitoring
+5.10 Solution - Monitoring (optional) 04:21
+ 
+Module 6: POD Design
+6.1 Labels, Selectors & Annotations
+6.2 Practice Test - Kubernetes - CKAD - Labels and Selectors
+6.3 Solution - Labels and Selectors (optional) 05:33
+6.4 Rolling Updates & Rollbacks 06:42
+6.5 Updating a Deployment
+6.6 Practice Test - Kubernetes - CKAD - Rolling Updates and Rollbacks
+6.7 Solution: Rolling Updates and Rollbacks (optional) 09:05
+6.8 Deployment Strategy - Blue Green 04:35
+6.9 Deployment Strategy - Canary 05:21
+6.10 Practice Test - Deployment strategies
+6.11 Solution: Deployment strategies 05:49
+6.12 Jobs 08:07
+6.13 Cron Jobs 01:45
+6.14 Practice Test - Kubernetes - CKAD - Jobs and CronJobs
+6.15 Solution - Jobs and Cronjobs (optional) 09:07
 
 Module 7: Services & Networking - 15 Lessons
 7.1 Services 13:47
@@ -150,18 +128,7 @@ Module 7: Services & Networking - 15 Lessons
 7.14 Solution: Ingress Networking - 2 14:34
 7.15 FAQ - What is the rewrite-target option?
 
-State Persistence
-
-16 Lessons
-
-0%
-
-Module Content
-
-0% Complete
-
-0/16 Lessons
-
+Module 8: State Persistence - 16 Lessons
 Introduction to Docker Storage 00:54
 Storage in Docker 12:32
 Volume Driver Plugins in Docker 01:53
@@ -179,18 +146,8 @@ Stateful Sets Introduction 02:44
 Headless Services 07:29
 Storage in StatefulSets 04:30
 
-Security
 
-29 Lessons
-
-0%
-
-Module Content
-
-0% Complete
-
-0/29 Lessons
-
+Module 9: Security - 29 Lessons
 Authentication, Authorization and Admission Control 03:18
 Authentication 05:34
 Article on Setting up Basic Authentication
@@ -221,18 +178,8 @@ Practice Test - Custom Resource Definition
 Custom Controllers 03:57
 Operator Framework 03:00
 
-Helm Fundamentals
 
-7 Lessons
-
-0%
-
-Module Content
-
-0% Complete
-
-0/7 Lessons
-
+Module 10: Helm Fundamentals - 7 Lessons
 Helm Introduction 06:23
 Install Helm 01:29
 Practice Test – Install Helm
