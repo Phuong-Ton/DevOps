@@ -55,6 +55,28 @@ spec:
           value: Awesome
       initialDelaySeconds: 3
       periodSeconds: 3
+	  
+spec:
+  containers:
+    readinessProbe:
+      httpGet:
+        path: '/ready'
+        port: 8080
+		
+spec:
+  containers:
+    readinessProbe:
+      tcpSocket:
+	    port: 3306
+	  
+spec:
+  containers:	  
+    readinessProbe:
+      exec:
+        command:
+	      - cat
+	      - /app/is_ready
+	  
 5.3 Practice Test - Kubernetes - CKAD - Readiness Probes
 5.4 Solution-Readiness and Liveness Probes 09:30
 01. Inspec Pods and service. After that, run script
