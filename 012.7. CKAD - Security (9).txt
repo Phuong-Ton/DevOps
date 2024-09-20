@@ -1,0 +1,61 @@
+
+Module 8: State Persistence - 16 Lessons
+Introduction to Docker Storage 00:54
+Storage in Docker 12:32
+Volume Driver Plugins in Docker 01:53
+Volumes in Kubernetes 04:36
+Persistent Volumes 03:07
+Persistent Volume Claims 04:05
+Using PVCs in Pods
+Practice Test - Kubernetes - CKAD - Persistent Volumes
+Solution - Persistent Volumes and Persistent Volume Claims (optional) 18:11
+Note on optional topics
+Storage Classes 03:59
+Practice Test - Storage Class
+Why Stateful Sets? 09:28
+Stateful Sets Introduction 02:44
+Headless Services 07:29
+Storage in StatefulSets 04:30
+
+
+Module 9: Security - 29 Lessons
+Authentication, Authorization and Admission Control 03:18
+Authentication 05:34
+Article on Setting up Basic Authentication
+Important Updates
+KubeConfig 08:32
+Practice Test KubeConfig
+Solution KubeConfig 08:08
+API Groups 05:52
+Authorization 07:30
+Role Based Access Controls 04:28
+Practice Test Role Based Access Controls
+Solution Role Based Access Controls 13:36
+Cluster Roles 04:33
+Practice Test Cluster Roles
+Solution Cluster Roles 11:13
+Admission Controllers 08:07
+Practice Test – Admission Controllers
+Solution: Admission Controllers 06:41
+Validating and Mutating Admission Controllers 10:26
+Practice Test – Validating and Mutating Admission Controllers
+Solution: Validating and Mutating Admission Controllers 07:39
+API Versions 08:47
+API Deprecations 13:45
+Practice Test – API Versions/Deprecations
+Solution: API Versions/Deprecations 07:18
+Custom Resource Definition 11:01
+Practice Test - Custom Resource Definition
+Custom Controllers 03:57
+Operator Framework 03:00
+
+
+✫
+★
+
+✪
+✰
+✅
+■ 
+✔
+🟊▲▲▶▶◀⬛⬜ 
