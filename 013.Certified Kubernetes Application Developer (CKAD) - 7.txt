@@ -53,24 +53,94 @@ spec:
 	podSelector:
 		matchLabels:
 			role: db
-	policyType:
+	policyTypes:
 	  - Ingress
-		ingress:
-		  - from: 
-			  podSelector:
+	ingress:
+	  - from: 
+		  - podSelector:
+			matchLabels:
+			  role: api-pod
+		port:
+		  - protocol: TCP
+			port: 3306
+----------------------------------------------
+Allow pod from API of namespace dev, CRD IP address , and itself
+
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: internal-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      name: internal
+  policyTypes:
+  - Egress
+  - Ingress
+  ingress:
+    - {}
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          name: mysql
+    ports:
+    - protocol: TCP
+      port: 3306
+
+  - to:
+    - podSelector:
+        matchLabels:
+          name: payroll
+    ports:
+    - protocol: TCP
+      port: 8080
+
+  - ports:
+    - port: 53
+      protocol: UDP
+    - port: 53
+      protocol: TCP
+
+
+
+
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: 
+	name: db-policy
+spec:
+	podSelector:
+		matchLabels:
+			role: db   --> block all traffic 
+	policyTypes:
+		- Ingress
+	ingress:
+		- from: 
+			- podSelector:
 				matchLabels:
-				  role: api-pod
-			port:
-			  - protocol: TCP
-				port: 3306
+					role: api-pod
+			  namespaceSelector:   ---> AND if - namespaceSelector ===> OR
+				matchLabels:
+					name: prod
+			- ipBlock:
+				cidr: 192.168.5.10/32
+		port:
+		  - protocol: TCP
+			port: 3306
+------
+	  
+			
 
 
-
-
-
+ labels:
+    name: internal
 
 	
-
+    name: external
 
 
 7.6 Developing network policies 11:35

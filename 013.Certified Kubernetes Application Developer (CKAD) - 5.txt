@@ -1,0 +1,26 @@
+Readiness Probe
+
+
+
+
+
+spec:
+  containers:
+    readinessProbe:
+      httpGet:
+        path: '/ready'
+        port: 8080
+
+
+
+containers:
+  readinessProbe:
+    tcpSocket:
+	  port: 3306
+	  
+	  
+readinessProbe:
+  exec:
+    command:
+	  - cat
+	  - /app/is_ready
