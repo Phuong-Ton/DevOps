@@ -12,7 +12,258 @@ Module 10: Helm Fundamentals - 7 Lessons
 10.1 Helm Introduction 06:23
 10.2 Install Helm 01:29
 10.3 Practice Test – Install Helm
+controlplane ~ ➜  cat /etc/*release*
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=22.04
+DISTRIB_CODENAME=jammy
+DISTRIB_DESCRIPTION="Ubuntu 22.04.4 LTS"
+PRETTY_NAME="Ubuntu 22.04.4 LTS"
+
+curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+sudo apt-get install apt-transport-https --yes
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm
+
+controlplane ~ ➜  helm --help
+The Kubernetes package manager
+
+Common actions for Helm:
+
+- helm search:    search for charts
+- helm pull:      download a chart to your local directory to view
+- helm install:   upload the chart to Kubernetes
+- helm list:      list releases of charts
+
+Environment variables:
+
+| Name                               | Description                                                                                                |
+|------------------------------------|------------------------------------------------------------------------------------------------------------|
+| $HELM_CACHE_HOME                   | set an alternative location for storing cached files.                                                      |
+| $HELM_CONFIG_HOME                  | set an alternative location for storing Helm configuration.                                                |
+| $HELM_DATA_HOME                    | set an alternative location for storing Helm data.                                                         |
+| $HELM_DEBUG                        | indicate whether or not Helm is running in Debug mode                                                      |
+| $HELM_DRIVER                       | set the backend storage driver. Values are: configmap, secret, memory, sql.                                |
+| $HELM_DRIVER_SQL_CONNECTION_STRING | set the connection string the SQL storage driver should use.                                               |
+| $HELM_MAX_HISTORY                  | set the maximum number of helm release history.                                                            |
+| $HELM_NAMESPACE                    | set the namespace used for the helm operations.                                                            |
+| $HELM_NO_PLUGINS                   | disable plugins. Set HELM_NO_PLUGINS=1 to disable plugins.                                                 |
+| $HELM_PLUGINS                      | set the path to the plugins directory                                                                      |
+| $HELM_REGISTRY_CONFIG              | set the path to the registry config file.                                                                  |
+| $HELM_REPOSITORY_CACHE             | set the path to the repository cache directory                                                             |
+| $HELM_REPOSITORY_CONFIG            | set the path to the repositories file.                                                                     |
+| $KUBECONFIG                        | set an alternative Kubernetes configuration file (default "~/.kube/config")                                |
+| $HELM_KUBEAPISERVER                | set the Kubernetes API Server Endpoint for authentication                                                  |
+| $HELM_KUBECAFILE                   | set the Kubernetes certificate authority file.                                                             |
+| $HELM_KUBEASGROUPS                 | set the Groups to use for impersonation using a comma-separated list.                                      |
+| $HELM_KUBEASUSER                   | set the Username to impersonate for the operation.                                                         |
+| $HELM_KUBECONTEXT                  | set the name of the kubeconfig context.                                                                    |
+| $HELM_KUBETOKEN                    | set the Bearer KubeToken used for authentication.                                                          |
+| $HELM_KUBEINSECURE_SKIP_TLS_VERIFY | indicate if the Kubernetes API server's certificate validation should be skipped (insecure)                |
+| $HELM_KUBETLS_SERVER_NAME          | set the server name used to validate the Kubernetes API server certificate                                 |
+| $HELM_BURST_LIMIT                  | set the default burst limit in the case the server contains many CRDs (default 100, -1 to disable)         |
+| $HELM_QPS                          | set the Queries Per Second in cases where a high number of calls exceed the option for higher burst values |
+
+Helm stores cache, configuration, and data based on the following configuration order:
+
+- If a HELM_*_HOME environment variable is set, it will be used
+- Otherwise, on systems supporting the XDG base directory specification, the XDG variables will be used
+- When no other location is set a default location will be used based on the operating system
+
+By default, the default directories depend on the Operating System. The defaults are listed below:
+
+| Operating System | Cache Path                | Configuration Path             | Data Path               |
+|------------------|---------------------------|--------------------------------|-------------------------|
+| Linux            | $HOME/.cache/helm         | $HOME/.config/helm             | $HOME/.local/share/helm |
+| macOS            | $HOME/Library/Caches/helm | $HOME/Library/Preferences/helm | $HOME/Library/helm      |
+| Windows          | %TEMP%\helm               | %APPDATA%\helm                 | %APPDATA%\helm          |
+
+Usage:
+  helm [command]
+
+Available Commands:
+  completion  generate autocompletion scripts for the specified shell
+  create      create a new chart with the given name
+  dependency  manage a chart's dependencies
+  env         helm client environment information
+  get         download extended information of a named release
+  help        Help about any command
+  history     fetch release history
+  install     install a chart
+  lint        examine a chart for possible issues
+  list        list releases
+  package     package a chart directory into a chart archive
+  plugin      install, list, or uninstall Helm plugins
+  pull        download a chart from a repository and (optionally) unpack it in local directory
+  push        push a chart to remote
+  registry    login to or logout from a registry
+  repo        add, list, remove, update, and index chart repositories
+  rollback    roll back a release to a previous revision
+  search      search for a keyword in charts
+  show        show information of a chart
+  status      display the status of the named release
+  template    locally render templates
+  test        run tests for a release
+  uninstall   uninstall a release
+  upgrade     upgrade a release
+  verify      verify that a chart at the given path has been signed and is valid
+  version     print the client version information
+
+Flags:
+      --burst-limit int                 client-side default throttling limit (default 100)
+      --debug                           enable verbose output
+  -h, --help                            help for helm
+      --kube-apiserver string           the address and the port for the Kubernetes API server
+      --kube-as-group stringArray       group to impersonate for the operation, this flag can be repeated to specify multiple groups.
+      --kube-as-user string             username to impersonate for the operation
+      --kube-ca-file string             the certificate authority file for the Kubernetes API server connection
+      --kube-context string             name of the kubeconfig context to use
+      --kube-insecure-skip-tls-verify   if true, the Kubernetes API server's certificate will not be checked for validity. This will make your HTTPS connections insecure
+      --kube-tls-server-name string     server name to use for Kubernetes API server certificate validation. If it is not provided, the hostname used to contact the server is used
+      --kube-token string               bearer token used for authentication
+      --kubeconfig string               path to the kubeconfig file
+  -n, --namespace string                namespace scope for this request
+      --qps float32                     queries per second used when communicating with the Kubernetes API, not including bursting
+      --registry-config string          path to the registry config file (default "/root/.config/helm/registry/config.json")
+      --repository-cache string         path to the file containing cached repository indexes (default "/root/.cache/helm/repository")
+      --repository-config string        path to the file containing repository names and URLs (default "/root/.config/helm/repositories.yaml")
+
+Use "helm [command] --help" for more information about a command.
+
 10.4 Solution: Install Helm 02:10
 10.5 Helm Concept 06:09
 10.6 Practice Test – Helm Concepts
+Which command is used to search for a wordpress helm chart package from the Artifact Hub?
+■ helm search hub chart-name      #to search specific charts on Artifact Hub.
+
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm search repo joomla 
+helm repo list
+
+controlplane ~ ➜  helm repo add bitnami https://charts.bitnami.com/bitnami
+"bitnami" has been added to your repositories
+
+controlplane ~ ➜  helm search repo joomla 
+NAME            CHART VERSION   APP VERSION     DESCRIPTION                                       
+bitnami/joomla  20.0.4          5.1.2           DEPRECATED Joomla! is an award winning open sou...
+
+controlplane ~ ➜  helm repo list
+NAME            URL                                                 
+bitnami         https://charts.bitnami.com/bitnami                  
+puppet          https://puppetlabs.github.io/puppetserver-helm-chart
+hashicorp       https://helm.releases.hashicorp.com 
+-----------------------------
+Install drupal helm chart from the bitnami repository.
+Release name should be bravo.
+Chart name should be bitnami/drupal.
+Note: Ignore the state of the application now.
+
+
+
+controlplane ~ ➜  helm search repo drupal
+NAME            CHART VERSION   APP VERSION     DESCRIPTION                                       
+bitnami/drupal  20.0.7          11.0.4          Drupal is one of the most versatile open source...
+
+
+
+controlplane ~ ➜  helm install bravo bitnami/drupal
+NAME: bravo
+LAST DEPLOYED: Fri Sep 20 04:48:57 2024
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+CHART NAME: drupal
+CHART VERSION: 20.0.7
+APP VERSION: 11.0.4** Please be patient while the chart is being deployed **
+
+1. Get the Drupal URL:
+
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        Watch the status with: 'kubectl get svc --namespace default -w bravo-drupal'
+
+  export SERVICE_IP=$(kubectl get svc --namespace default bravo-drupal --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
+  echo "Drupal URL: http://$SERVICE_IP/"
+
+2. Get your Drupal login credentials by running:
+
+  echo Username: user
+  echo Password: $(kubectl get secret --namespace default bravo-drupal -o jsonpath="{.data.drupal-password}" | base64 -d)
+
+WARNING: There are "resources" sections in the chart not set. Using "resourcesPreset" is not recommended for production. For production installations, please set the following values according to your workload needs:
+  - resources
++info https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+
+controlplane ~ ➜  helm list
+NAME    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+bravo   default         1               2024-09-20 04:48:57.017193443 +0000 UTC deployed        drupal-20.0.7   11.0.4    
+
+controlplane ~ ➜  kubectl get pod,svc,deploy
+NAME                                READY   STATUS    RESTARTS   AGE
+pod/bravo-drupal-76cc59496d-kszg6   0/1     Pending   0          53s
+pod/bravo-mariadb-0                 0/1     Pending   0          52s
+
+NAME                    TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+service/bravo-drupal    LoadBalancer   10.105.106.116   <pending>     80:32421/TCP,443:30589/TCP   53s
+service/bravo-mariadb   ClusterIP      10.96.109.212    <none>        3306/TCP                     53s
+service/kubernetes      ClusterIP      10.96.0.1        <none>        443/TCP                      12m
+
+NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/bravo-drupal   0/1     1            0           53s
+
+controlplane ~ ➜  helm uninstall bravo
+release "bravo" uninstalled
+
+controlplane ~ ➜  kubectl get pod,svc,deploy
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   13m
+------------------------------------------------------
+Download the bitnami apache package under the /root directory.
+Note: Do not install the package. Just download it.
+
+helm pull --untar  bitnami/apache
+
+controlplane ~ ➜  helm pull --untar  bitnami/apache
+
+controlplane ~ ➜  ls
+apache
+
+controlplane ~ ➜  ls apache/
+Chart.lock  charts  Chart.yaml  files  README.md  templates  values.schema.json  values.yaml
+
+
+
+---------------------------------------------
+inspect values.yaml make chage 2 replicas of webserver are running and http is exposed on nodePort 30080
+
+controlplane ~/apache is 📦 v11.2.20 via ⎈ v3.15.4 ➜  helm install mywebapp .
+NAME: mywebapp
+LAST DEPLOYED: Fri Sep 20 04:57:31 2024
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+CHART NAME: apache
+CHART VERSION: 11.2.20
+APP VERSION: 2.4.62
+
+** Please be patient while the chart is being deployed **
+
+controlplane ~/apache is 📦 v11.2.20 via ⎈ v3.15.4 ➜   helm list   
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+mywebapp        default         1               2024-09-20 04:57:31.770682216 +0000 UTC deployed        apache-11.2.20  2.4.62     
+
+controlplane ~/apache is 📦 v11.2.20 via ⎈ v3.15.4 ➜  kubectl get pod,svc,deploy
+NAME                                  READY   STATUS    RESTARTS   AGE
+pod/mywebapp-apache-f8554c66d-fdhp2   0/1     Pending   0          23s
+pod/mywebapp-apache-f8554c66d-nqf82   0/1     Pending   0          23s
+
+NAME                      TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                      AGE
+service/kubernetes        ClusterIP      10.96.0.1      <none>        443/TCP                      21m
+service/mywebapp-apache   LoadBalancer   10.109.32.76   <pending>     80:30080/TCP,443:30662/TCP   23s
+
+NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/mywebapp-apache   0/2     2            0           23s
 10.7 Solution: Helm Concepts 04:31
