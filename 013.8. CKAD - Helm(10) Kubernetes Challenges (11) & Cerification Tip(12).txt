@@ -7,6 +7,12 @@ Module 10: Helm Fundamentals - 7 Lessons
 10.6 Practice Test – Helm Concepts
 10.7 Solution: Helm Concepts 04:31
 
+Module 11:Additional Practice - Kubernetes Challenges (Optional) - 2 Lessons
+11.1. Kubernetes Challenges
+11.2. Kubernetes Update and Project Videos - Your Essential Guide
+
+Module 12: Certification Tips - 1 Lesson
+12.1 Time Management 06:10
 
 ----------------------------------------------------------------
 10.1 Helm Introduction 06:23
@@ -233,11 +239,10 @@ controlplane ~ ➜  ls apache/
 Chart.lock  charts  Chart.yaml  files  README.md  templates  values.schema.json  values.yaml
 
 
-
 ---------------------------------------------
 inspect values.yaml make chage 2 replicas of webserver are running and http is exposed on nodePort 30080
 
-controlplane ~/apache is 📦 v11.2.20 via ⎈ v3.15.4 ➜  helm install mywebapp .
+controlplane ~/apache ➜  helm install mywebapp .
 NAME: mywebapp
 LAST DEPLOYED: Fri Sep 20 04:57:31 2024
 NAMESPACE: default
@@ -251,11 +256,11 @@ APP VERSION: 2.4.62
 
 ** Please be patient while the chart is being deployed **
 
-controlplane ~/apache is 📦 v11.2.20 via ⎈ v3.15.4 ➜   helm list   
+controlplane ~/apache ➜   helm list   
 NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
 mywebapp        default         1               2024-09-20 04:57:31.770682216 +0000 UTC deployed        apache-11.2.20  2.4.62     
 
-controlplane ~/apache is 📦 v11.2.20 via ⎈ v3.15.4 ➜  kubectl get pod,svc,deploy
+controlplane ~/apache ➜  kubectl get pod,svc,deploy
 NAME                                  READY   STATUS    RESTARTS   AGE
 pod/mywebapp-apache-f8554c66d-fdhp2   0/1     Pending   0          23s
 pod/mywebapp-apache-f8554c66d-nqf82   0/1     Pending   0          23s
@@ -267,3 +272,38 @@ service/mywebapp-apache   LoadBalancer   10.109.32.76   <pending>     80:30080/T
 NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/mywebapp-apache   0/2     2            0           23s
 10.7 Solution: Helm Concepts 04:31
+
+
+=========================================================================================================================
+Module 11:Additional Practice - Kubernetes Challenges (Optional) - 2 Lessons
+11.1. Kubernetes Challenges
+
+The Kubernetes Challenges is a FREE, fun, and challenging set of challenges to Practice Kubernetes hands-on. These challenges are specially designed to give you more hands-on challenges that would help you excel in Kubernetes.
+
+Kubernetes Challenges makes learning and practicing your Kubernetes skills fun by providing you with a set of challenges, such as deploying new applications to a cluster, troubleshooting existing applications, troubleshooting and fixing security and network-related issues within the cluster, and many more.
+
+The challenge portal opens right in your browser. You are given an architecture diagram of the application to be deployed and a countdown timer before which you must complete all tasks. Additional Practice - Kubernetes Challenges (Optional): https://beta.kodekloud.com/user/courses/kubernetes-challenges
+
+11.2. Kubernetes Update and Project Videos - Your Essential Guide
+Uncover additional insights through the videos listed below:
+Kubernetes Update Videos
+
+Kubernetes v1.27 Update
+Kubernetes Update 1.27: Chill Vibes Edition - Exploring the Latest Enhancements https://www.youtube.com/watch?v=rUFgZuIp1mY
+
+Kubernetes v1.28 Update
+Kubernetes Update 1.28: Planternetes Edition - Exploring the Latest Enhancements https://www.youtube.com/watch?v=mRlBtYc-HSk
+
+Kubernetes v1.29 Update
+Exploring Kubernetes 1.29 Updates - Mandala Universe https://www.youtube.com/watch?v=yCkQgKVwSVU
+
+Kubernetes Project Videos
+
+Special Interest Groups (SIGs) in Kubernetes
+Kubernetes SIGs: What They Are and How They Work https://www.youtube.com/watch?v=EoKuPoFXY-k&t=2s
+
+Kubernetes Enhancement Proposals (KEPs) Unveiled
+What are Kubernetes Enhancement Proposals (KEPs)? https://www.youtube.com/watch?v=B810TDzTQsQ
+
+Module 12: Certification Tips - 1 Lesson
+12.1 Time Management 06:10
