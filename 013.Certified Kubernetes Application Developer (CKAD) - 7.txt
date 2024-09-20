@@ -132,15 +132,7 @@ spec:
 		  - protocol: TCP
 			port: 3306
 ------
-	  
-			
 
-
- labels:
-    name: internal
-
-	
-    name: external
 
 
 7.6 Developing network policies 11:35

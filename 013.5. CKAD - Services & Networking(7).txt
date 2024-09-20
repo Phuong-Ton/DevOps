@@ -1,3 +1,73 @@
+Module 7: Services & Networking - 15 Lessons
+7.1 Services 13:47
+7.2 Services - Cluster IP 04:10
+7.3 Practice Test - CKAD - Kubernetes Services
+7.4 Solution - Services (optional) 09:27
+7.5 Network Policies 07:56
+7.6 Developing network policies 11:35
+7.7 Practice Test - Kubernetes - CKAD - Network Policies
+7.8 Solution - Network Policies (optional) 14:11
+7.9 Ingress Networking 22:38
+7.10 Article: Ingress
+7.11 Practice Test - CKAD - Ingress Networking - 1
+7.12 Solution: Ingress Networking - 1 15:45
+7.13 Practice Test - CKAD - Ingress Networking - 2
+7.14 Solution: Ingress Networking - 2 14:34
+7.15 FAQ - What is the rewrite-target option?
+
+
+7.1 Services 13:47
+7.2 Services - Cluster IP 04:10
+7.3 Practice Test - CKAD - Kubernetes Services
+7.4 Solution - Services (optional) 09:27
+7.5 Network Policies 07:56
+Traffic
+
+
+User---------> Web(80) -------------------------> API(8000) -----------------------> DB(3306)
+     Ingress            Egress           Ingress              Egress         Ingress
+	 
+2 types of trafic: Ingress and Egress
+all allow rule allow trafic from any pod to other pod or service within cluster
+
+Network Policies: using Selectors at definition file
+
+policyType:
+  - Ingress
+    ingress:
+	  - from: 
+		  podSelector:
+		    matchLabels:
+			  role: api-pod
+	    port:
+		  - protocol: TCP
+		    port: 3306
+
+-> allow Ingress Traffic From API Pod on port 3306
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: 
+	name: db-policy
+spec:
+	podSelector:
+		matchLabels:
+			role: db
+	policyType:
+	  - Ingress
+		ingress:
+		  - from: 
+			  podSelector:
+				matchLabels:
+				  role: api-pod
+			port:
+			  - protocol: TCP
+				port: 3306
+7.6 Developing network policies 11:35
+7.7 Practice Test - Kubernetes - CKAD - Network Policies
+7.8 Solution - Network Policies (optional) 14:11
+
+
 7.9 Ingress Networking 22:38
 Online ap
 
@@ -708,3 +778,4 @@ spec:
           serviceName: http-svc
           servicePort: 80
         path: /something(/|$)(.\*)
+
