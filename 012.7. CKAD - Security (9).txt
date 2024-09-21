@@ -224,20 +224,652 @@ Try running the kubectl get pods command and look for the error. All users certi
 9.10 Role Based Access Controls 04:28
 9.11 Practice Test Role Based Access Controls
 9.12 Solution Role Based Access Controls 13:36
+01. Inspect the environment and identify the authorization modes configured on the cluster.
+Check the kube-apiserver settings.
+>Use the command kubectl describe pod kube-apiserver-controlplane -n kube-system and look for --authorization-mode.
+
+
+■ cat /etc/kubernetes/manifests/kube-apiserver.yaml
+■ ps -aux | grep authorization
+ 
+controlplane ~ ➜  kubectl describe pod kube-apiserver-controlplane -n kube-system
+
+Name:                 kube-apiserver-controlplane
+Namespace:            kube-system
+Priority:             2000001000
+Priority Class Name:  system-node-critical
+Node:                 controlplane/192.3.4.6
+Start Time:           Sat, 21 Sep 2024 03:38:52 +0000
+Labels:               component=kube-apiserver
+                      tier=control-plane
+Annotations:          kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint: 192.3.4.6:6443
+                      kubernetes.io/config.hash: ed0be7b31b426b5edca7da6984bb1e2a
+                      kubernetes.io/config.mirror: ed0be7b31b426b5edca7da6984bb1e2a
+                      kubernetes.io/config.seen: 2024-09-21T03:38:52.064316028Z
+                      kubernetes.io/config.source: file
+Status:               Running
+SeccompProfile:       RuntimeDefault
+IP:                   192.3.4.6
+IPs:
+  IP:           192.3.4.6
+Controlled By:  Node/controlplane
+Containers:
+  kube-apiserver:
+    Container ID:  containerd://303747562c0a807e5f42f782c6200d15df51b952b972a786f162b2e18e60f5ce
+    Image:         registry.k8s.io/kube-apiserver:v1.30.0
+    Image ID:      registry.k8s.io/kube-apiserver@sha256:6b8e197b2d39c321189a475ac755a77896e34b56729425590fbc99f3a96468a3
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      kube-apiserver
+      --advertise-address=192.3.4.6
+      --allow-privileged=true
+      --authorization-mode=Node,RBAC
+      --client-ca-file=/etc/kubernetes/pki/ca.crt
+      --enable-admission-plugins=NodeRestriction
+      --enable-bootstrap-token-auth=true
+      --etcd-cafile=/etc/kubernetes/pki/etcd/ca.crt
+      --etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.crt
+      --etcd-keyfile=/etc/kubernetes/pki/apiserver-etcd-client.key
+      --etcd-servers=https://127.0.0.1:2379
+      --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.crt
+      --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key
+      --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+      --proxy-client-cert-file=/etc/kubernetes/pki/front-proxy-client.crt
+      --proxy-client-key-file=/etc/kubernetes/pki/front-proxy-client.key
+      --requestheader-allowed-names=front-proxy-client
+      --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt
+      --requestheader-extra-headers-prefix=X-Remote-Extra-
+      --requestheader-group-headers=X-Remote-Group
+      --requestheader-username-headers=X-Remote-User
+      --secure-port=6443
+      --service-account-issuer=https://kubernetes.default.svc.cluster.local
+      --service-account-key-file=/etc/kubernetes/pki/sa.pub
+      --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
+      --service-cluster-ip-range=10.96.0.0/12
+      --tls-cert-file=/etc/kubernetes/pki/apiserver.crt
+      --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
+    State:          Running
+      Started:      Sat, 21 Sep 2024 03:38:46 +0000
+    Ready:          True
+    Restart Count:  0
+    Requests:
+      cpu:        250m
+    Liveness:     http-get https://192.3.4.6:6443/livez delay=10s timeout=15s period=10s #success=1 #failure=8
+    Readiness:    http-get https://192.3.4.6:6443/readyz delay=0s timeout=15s period=1s #success=1 #failure=3
+    Startup:      http-get https://192.3.4.6:6443/livez delay=10s timeout=15s period=10s #success=1 #failure=24
+    Environment:  <none>
+    Mounts:
+      /etc/ca-certificates from etc-ca-certificates (ro)
+      /etc/kubernetes/pki from k8s-certs (ro)
+      /etc/ssl/certs from ca-certs (ro)
+      /usr/local/share/ca-certificates from usr-local-share-ca-certificates (ro)
+      /usr/share/ca-certificates from usr-share-ca-certificates (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  ca-certs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/ssl/certs
+    HostPathType:  DirectoryOrCreate
+  etc-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/ca-certificates
+    HostPathType:  DirectoryOrCreate
+  k8s-certs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/kubernetes/pki
+    HostPathType:  DirectoryOrCreate
+  usr-local-share-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/local/share/ca-certificates
+    HostPathType:  DirectoryOrCreate
+  usr-share-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/share/ca-certificates
+    HostPathType:  DirectoryOrCreate
+QoS Class:         Burstable
+Node-Selectors:    <none>
+Tolerations:       :NoExecute op=Exists
+Events:
+  Type    Reason   Age   From     Message
+  ----    ------   ----  ----     -------
+  Normal  Pulled   9m2s  kubelet  Container image "registry.k8s.io/kube-apiserver:v1.30.0" already present on machine
+  Normal  Created  9m2s  kubelet  Created container kube-apiserver
+  Normal  Started  9m1s  kubelet  Started container kube-apiserver
+
+02.How many roles exist in the default namespace?
+
+03.What are the resources the kube-proxy role in the kube-system namespace is given access to?
+controlplane ~ ➜  kubectl get role -A
+NAMESPACE     NAME                                             CREATED AT
+blue          developer                                        2024-09-21T03:45:07Z
+kube-public   kubeadm:bootstrap-signer-clusterinfo             2024-09-21T03:38:51Z
+kube-public   system:controller:bootstrap-signer               2024-09-21T03:38:50Z
+kube-system   extension-apiserver-authentication-reader        2024-09-21T03:38:50Z
+kube-system   kube-proxy                                       2024-09-21T03:38:52Z
+kube-system   kubeadm:kubelet-config                           2024-09-21T03:38:51Z
+kube-system   kubeadm:nodes-kubeadm-config                     2024-09-21T03:38:51Z
+kube-system   system::leader-locking-kube-controller-manager   2024-09-21T03:38:50Z
+kube-system   system::leader-locking-kube-scheduler            2024-09-21T03:38:50Z
+kube-system   system:controller:bootstrap-signer               2024-09-21T03:38:50Z
+kube-system   system:controller:cloud-provider                 2024-09-21T03:38:50Z
+kube-system   system:controller:token-cleaner                  2024-09-21T03:38:50Z
+
+controlplane ~ ➜  kubectl get role -A | wc
+     13      40    1082
+
+controlplane ~ ➜  kubectl get role -A | wc -l
+13
+
+controlplane ~ ➜  kubectl describe role kube-proxy -n kube-system
+Name:         kube-proxy
+Labels:       <none>
+Annotations:  <none>
+PolicyRule:
+  Resources   Non-Resource URLs  Resource Names  Verbs
+  ---------   -----------------  --------------  -----
+  configmaps  []                 [kube-proxy]    [get]
+  
+04.Which account is the kube-proxy role assigned to?
+controlplane ~ ➜  kubectl get rolebinding kube-proxy -n kube-system
+NAME         ROLE              AGE
+kube-proxy   Role/kube-proxy   14m
+
+controlplane ~ ➜  kubectl describe rolebinding kube-proxy -n kube-system
+Name:         kube-proxy
+Labels:       <none>
+Annotations:  <none>
+Role:
+  Kind:  Role
+  Name:  kube-proxy
+Subjects:
+  Kind   Name                                             Namespace
+  ----   ----                                             ---------
+  Group  system:bootstrappers:kubeadm:default-node-token  
+
+05.A user dev-user is created. User's details have been added to the kubeconfig file. Inspect the permissions granted to the user. Check if the user can list pods in the default namespace.
+Use the --as dev-user option with kubectl to run commands as the dev-user.
+controlplane ~ ➜  kubectl config view
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://controlplane:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: kubernetes-admin
+  name: kubernetes-admin@kubernetes
+current-context: kubernetes-admin@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: dev-user
+  user:
+    client-certificate-data: DATA+OMITTED
+    client-key-data: DATA+OMITTED
+- name: kubernetes-admin
+  user:
+    client-certificate-data: DATA+OMITTED
+    client-key-data: DATA+OMITTED
+	
+controlplane ~ ✖ kubectl get pods --as dev-user
+Error from server (Forbidden): pods is forbidden: User "dev-user" cannot list resource "pods" in API group "" in the namespace "default"
+06. Create the necessary roles and role bindings required for the dev-user to create, list and delete pods in the default namespace.
+
+Use the given spec:
+Role: developer
+Role Resources: pods
+Role Actions: list
+Role Actions: create
+Role Actions: delete
+RoleBinding: dev-user-binding
+RoleBinding: Bound to dev-user
+
+Use the command kubectl create to create a role developer and rolebinding dev-user-binding in the default namespace.
+■ kubectl create role developer --namespace=default --verb=list,create,delete --resource=pods
+■ kubectl create rolebinding dev-user-binding --namespace=default --role=developer --user=dev-user
+-------------------------------------------
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: default
+  name: developer
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["list", "create","delete"]
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: dev-user-binding
+subjects:
+- kind: User
+  name: dev-user
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: developer
+  apiGroup: rbac.authorization.k8s.io
+  -------------------------------------------------------------
+07.A set of new roles and role-bindings are created in the blue namespace for the dev-user. However, the dev-user is unable to get details of the dark-blue-app pod in the blue namespace. Investigate and fix the issue.
+
+
+We have created the required roles and rolebindings, but something seems to be wrong
+controlplane ~ ➜  kubectl get pod -n blue
+NAME            READY   STATUS    RESTARTS   AGE
+blue-app        1/1     Running   0          16m
+dark-blue-app   1/1     Running   0          16m
+
+controlplane ~ ✖ kubectl get pods dark-blue-app -n blue --as dev-user
+Error from server (Forbidden): pods "dark-blue-app" is forbidden: User "dev-user" cannot get resource "pods" in API group "" in the namespace "blue"
+
+controlplane ~ ✖ kubectl get role -n blue
+NAME        CREATED AT
+developer   2024-09-21T03:45:07Z
+
+controlplane ~ ➜  kubectl describe role developer
+Name:         developer
+Labels:       <none>
+Annotations:  <none>
+PolicyRule:
+  Resources  Non-Resource URLs  Resource Names  Verbs
+  ---------  -----------------  --------------  -----
+  pods       []                 []              [list create delete]
+
+controlplane ~ ➜  kubectl get rolebinding -n blue
+NAME               ROLE             AGE
+dev-user-binding   Role/developer   19m
+
+controlplane ~ ➜  kubectl describe rolebinding -n blue
+Name:         dev-user-binding
+Labels:       <none>
+Annotations:  <none>
+Role:
+  Kind:  Role
+  Name:  developer
+Subjects:
+  Kind  Name      Namespace
+  ----  ----      ---------
+  User  dev-user  
+
+controlplane ~ ➜  kubectl describe role developer -n blue
+Name:         developer
+Labels:       <none>
+Annotations:  <none>
+PolicyRule:
+  Resources  Non-Resource URLs  Resource Names  Verbs
+  ---------  -----------------  --------------  -----
+  pods       []                 [blue]          [get watch create delete]
+
+controlplane ~ ➜  kubectl edit role developer -n blue
+role.rbac.authorization.k8s.io/developer edited
+
+controlplane ~ ➜  kubectl describe role developer -n blue
+Name:         developer
+Labels:       <none>
+Annotations:  <none>
+PolicyRule:
+  Resources  Non-Resource URLs  Resource Names   Verbs
+  ---------  -----------------  --------------   -----
+  pods       []                 [dark-blue-app]  [get watch create delete]
+
+
+07.Add a new rule in the existing role developer to grant the dev-user permissions to create deployments in the blue namespace.
+kubectl edit role developer -n blue
+
+
+Remember to add api group "apps".
+
+
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  
+
 
 9.13 Cluster Roles 04:33
 9.14 Practice Test Cluster Roles
+01.For the first few questions of this lab, you would have to inspect the existing ClusterRoles and ClusterRoleBindings that have been created in this cluster.
+
+kubectl get clusterrole | wc -l
+kubectl get clusterrolebinding | wc -l
+kubectl get clusterrole cluster-admin
+controlplane ~ ➜  kubectl describe clusterrole cluster-admin
+Name:         cluster-admin
+Labels:       kubernetes.io/bootstrapping=rbac-defaults
+Annotations:  rbac.authorization.kubernetes.io/autoupdate: true
+PolicyRule:
+  Resources  Non-Resource URLs  Resource Names  Verbs
+  ---------  -----------------  --------------  -----
+  *.*        []                 []              [*]
+             [*]                []              [*]
+			 
+kubectl api-resources --namespaced=false
+	
+controlplane ~ ➜  kubectl describe clusterrolebinding cluster-admin
+Name:         cluster-admin
+Labels:       kubernetes.io/bootstrapping=rbac-defaults
+Annotations:  rbac.authorization.kubernetes.io/autoupdate: true
+Role:
+  Kind:  ClusterRole
+  Name:  cluster-admin
+Subjects:
+  Kind   Name            Namespace
+  ----   ----            ---------
+  Group  system:masters 
+  
+02. A new user michelle joined the team. She will be focusing on the nodes in the cluster. Create the required ClusterRoles and ClusterRoleBindings so she gets access to the nodes.
+
+>Use the command kubectl create to create a clusterrole and clusterrolebinding for user michelle to grant access to the nodes.
+After that test the access using the command kubectl auth can-i list nodes --as michelle.
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: node-admin
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "watch", "list", "create", "delete"]
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: michelle-binding
+subjects:
+- kind: User
+  name: michelle
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: node-admin
+  apiGroup: rbac.authorization.k8s.io
+
+03. michelle's responsibilities are growing and now she will be responsible for storage as well. Create the required ClusterRoles and ClusterRoleBindings to allow her access to Storage.
+Get the API groups and resource names from command kubectl api-resources. Use the given spec:
+ClusterRole: storage-admin
+Resource: persistentvolumes
+Resource: storageclasses
+ClusterRoleBinding: michelle-storage-admin
+ClusterRoleBinding Subject: michelle
+ClusterRoleBinding Role: storage-admin
+>
+Use the command kubectl create to create a new ClusterRole and ClusterRoleBinding.
+Assign it correct resources and verbs.
+After that test the access using the command kubectl auth can-i list storageclasses --as michelle.
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: storage-admin
+rules:
+- apiGroups: [""]
+  resources: ["persistentvolumes"]
+  verbs: ["get", "watch", "list", "create", "delete"]
+- apiGroups: ["storage.k8s.io"]
+  resources: ["storageclasses"]
+  verbs: ["get", "watch", "list", "create", "delete"]
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: michelle-storage-admin
+subjects:
+- kind: User
+  name: michelle
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: storage-admin
+  apiGroup: rbac.authorization.k8s.io
+  
 9.15 Solution Cluster Roles 11:13
+
 9.16 Admission Controllers 08:07
 9.17 Practice Test – Admission Controllers
+01. Inspect /etc/kubernetes/manifests/kube-apiserver.yaml 
+-enable-admission-plugins=NodeRestriction
+controlplane ~ ➜  kubectl run nginx --image nginx -n blue
+Error from server (NotFound): namespaces "blue" not found
+
+02. The previous step failed because kubernetes have NamespaceExists admission controller enabled which rejects requests to namespaces that do not exist. So, to create a namespace that does not exist automatically, we could enable the NamespaceAutoProvision admission controller
+
+Enable the NamespaceAutoProvision admission controller
+
+Note: Once you update kube-apiserver yaml file, please wait for a few minutes for the kube-apiserver to restart completely.
+> /etc/kubernetes/manifests/kube-apiserver.yaml 
+> - --enable-admission-plugins=NodeRestriction,NamespaceAutoProvision
+
+03. Note that the NamespaceExists and NamespaceAutoProvision admission controllers are deprecated and now replaced by NamespaceLifecycle admission controller.
+
+The NamespaceLifecycle admission controller will make sure that requests
+to a non-existent namespace is rejected and that the default namespaces such as
+default, kube-system and kube-public cannot be deleted.
+
+04. Disable DefaultStorageClass admission controller
+This admission controller observes creation of PersistentVolumeClaim objects that do not request any specific storage class and automatically adds a default storage class to them. This way, users that do not request any special storage class do not need to care about them at all and they will get the default one.
+Note: Once you update kube-apiserver yaml file then please wait few mins for the kube-apiserver to restart completely.
+>Add DefaultStorageClass to disable-admission-plugins in /etc/kubernetes/manifests/kube-apiserver.yaml
+
+Since the kube-apiserver is running as pod you can check the process to see enabled and disabled plugins.
+
+ps -ef | grep kube-apiserver | grep admission-plugins
+
 9.18 Solution: Admission Controllers 06:41
+
 9.19 Validating and Mutating Admission Controllers 10:26
 9.20 Practice Test – Validating and Mutating Admission Controllers
 9.21 Solution: Validating and Mutating Admission Controllers 07:39
+
+01. controlplane ~ ➜  kubectl create ns webhook-demo
+namespace/webhook-demo created
+
+02. Create TLS secret webhook-server-tls for secure webhook communication in webhook-demo namespace.
+We have already created below cert and key for webhook server which should be used to create secret.
+Certificate : /root/keys/webhook-server-tls.crt
+Key : /root/keys/webhook-server-tls.key
+> Create tls secret type in kubernetes with --cert and --key options
+kubectl -n webhook-demo create secret tls webhook-server-tls \
+    --cert "/root/keys/webhook-server-tls.crt" \
+    --key "/root/keys/webhook-server-tls.key"
+
+03.Create webhook deployment now.
+We have already added sample deployment definition under /root/webhook-deployment.yaml so just create deployment with that definition.
+controlplane ~ ➜  cat /root/webhook-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhook-server
+  namespace: webhook-demo
+  labels:
+    app: webhook-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webhook-server
+  template:
+    metadata:
+      labels:
+        app: webhook-server
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1234
+      containers:
+      - name: server
+        image: stackrox/admission-controller-webhook-demo:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8443
+          name: webhook-api
+        volumeMounts:
+        - name: webhook-tls-certs
+          mountPath: /run/secrets/tls
+          readOnly: true
+      volumes:
+      - name: webhook-tls-certs
+        secret:
+          secretName: webhook-server-tls
+04. Create webhook service now so that admission controller can communicate with webhook.
+We have already added sample service definition under /root/webhook-service.yaml so just create service with that definition.
+controlplane ~ ➜  cat webhook-service.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  name: webhook-server
+  namespace: webhook-demo
+spec:
+  selector:
+    app: webhook-server
+  ports:
+    - port: 443
+      targetPort: webhook-api
+
+controlplane ~ ➜  kubectl create -f webhook-service.yaml 
+service/webhook-server created
+05. We have added MutatingWebhookConfiguration under /root/webhook-configuration.yaml.
+If we apply this configuration which resource and actions it will affect?
+
+controlplane ~ ➜  cat webhook-configuration.yaml 
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: demo-webhook
+webhooks:
+  - name: webhook-server.webhook-demo.svc
+    clientConfig:
+      service:
+        name: webhook-server
+        namespace: webhook-demo
+        path: "/mutate"
+      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURQekNDQWllZ0F3SUJBZ0lVTlNveVRvaGRuSWlWYWdMWkVweUhmb1NIci9Rd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0x6RXRNQ3NHQTFVRUF3d2tRV1J0YVhOemFXOXVJRU52Ym5SeWIyeHNaWElnVjJWaWFHOXZheUJFWlcxdgpJRU5CTUI0WERUSTBNRGt5TVRBMU5EUXpPRm9YRFRJME1UQXlNVEExTkRRek9Gb3dMekV0TUNzR0ExVUVBd3drClFXUnRhWE56YVc5dUlFTnZiblJ5YjJ4c1pYSWdWMlZpYUc5dmF5QkVaVzF2SUVOQk1JSUJJakFOQmdrcWhraUcKOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXBCOGtjSFN6QXZlQ3U0YUtGaUowckIyRmVYR2l3S3dwRVNXMAp0M0o1NU9uVVdLYThYaFZCU091T21nMkxnV3V2M04yWTdWUEFMcG5oVWVDT1pFeStrdmFhQytCTkJGSDd3bWNMCndGOTVaaUd1UGp1TkRqZzZTQzZGVFNxUXByYVJyaDdHemdOOUk1RnVwVzZSSFEvMW54MWZ1OGNNTzByYzVJc2YKUjRsMXJRa1F5RzlQVUxTSm1sZzllem9leFg0VEpYUjVrOTRwTHU5RzZCd2dVMzhJa0QzdnBKS2hFclEzYmx5cApjMzZFR1Uzd2VBSWswNHVzUWo1WTZCeld4QTZYRE5VZ2E1VzkySHdjMnc1dnVzUGlOcVplc2pGeUFYZmNYVkdHClo4RkN0dGpPUGtCVWVXNitXM0w2dkIxbmFFbU1vbnhSRUovZmR3SGx5RGJGR3VUS29RSURBUUFCbzFNd1VUQWQKQmdOVkhRNEVGZ1FVcG5YcEp0MjFjaHlYc1liUVRSUUtxMUZqR1RJd0h3WURWUjBqQkJnd0ZvQVVwblhwSnQyMQpjaHlYc1liUVRSUUtxMUZqR1RJd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHOXcwQkFRc0ZBQU9DCkFRRUFZRzk5QjZvOHlHZ3hmQ01nZUNwMFBFdkpHWktySTJGajNtRDBJNHRqWi96d3dDcnVwYXIwMWIyVkJneVQKN0dIMVhMOHRRWWZVaGg3MDdLdTFLNHYwdXBVS01TbkZRR1FzNk1GcEFOWk9YU1Z3V05mQjRqL1hCRkt0bDVINwpkTURvMkZBL3I4ZnN5UjBDMnlLaktZUWV4RS93bVlwVW5NV3ZuNkx6TTB3c2NRSW04aWdwNjM5VHNHNVdxZENwClBSRENxbmg3bXk1OVNSZjFIV2h5U05ONVRraytNT0VVQkZnc3Z3R1ZzdFpNbkZHOXY4WDduZXN1d3lveTlZaEcKR2podFRmUitYc0VEYVhabURFOW5RRlRBekcyMTBQK1ZNMHBGdWdWbkl5S1dsUlpDVmtQSy9GcHV5ZUxWTHVNVApySEJNbWFIV2ozd0tmSmlKd3Y3QzFqRFJmZz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    rules:
+      - operations: [ "CREATE" ]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+    admissionReviewVersions: ["v1beta1"]
+    sideEffects: None
+06. In previous steps we have deployed demo webhook which does below
+
+- Denies all request for pod to run as root in container if no securityContext is provided.
+
+- If no value is set for runAsNonRoot, a default of true is applied, and the user ID defaults to 1234
+
+- Allow to run containers as root if runAsNonRoot set explicitly to false in the securityContext
+
+In next steps we have added some pod definitions file for each scenario. Deploy those pods with existing definitions file and validate the behaviour of our webhook
+07. Deploy a pod with no securityContext specified.
+
+
+We have added pod definition file under /root/pod-with-defaults.yaml
+>controlplane ~ ➜  cat pod-with-defaults.yaml 
+# A pod with no securityContext specified.
+# Without the webhook, it would run as user root (0). The webhook mutates it
+# to run as the non-root user with uid 1234.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-with-defaults
+  labels:
+    app: pod-with-defaults
+spec:
+  restartPolicy: OnFailure
+  containers:
+    - name: busybox
+      image: busybox
+      command: ["sh", "-c", "echo I am running as user $(id -u)"]
+
+controlplane ~ ➜  kubectl create -f pod-with-defaults.yaml 
+pod/pod-with-defaults created
+
+08. What are runAsNonRoot and runAsUser values for previously created pods securityContext?
+
+We did not specify any securityContext values in pod definition so check out the changes done by mutation webhook in pod
+controlplane ~ ✖ kubectl get po pod-with-defaults -o yaml | grep -A2 " securityContext:"
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1234
+09. Deploy pod with a securityContext explicitly allowing it to run as root
+
+We have added pod definition file under /root/pod-with-override.yaml
+Validate securityContext after you deploy this pod
+>controlplane ~ ➜  cat /root/pod-with-override.yaml
+# A pod with a securityContext explicitly allowing it to run as root.
+# The effect of deploying this with and without the webhook is the same. The
+# explicit setting however prevents the webhook from applying more secure
+# defaults.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-with-override
+  labels:
+    app: pod-with-override
+spec:
+  restartPolicy: OnFailure
+  securityContext:
+    runAsNonRoot: false
+  containers:
+    - name: busybox
+      image: busybox
+      command: ["sh", "-c", "echo I am running as user $(id -u)"]
+
+controlplane ~ ➜  kubectl create -f pod-with-override.yaml 
+pod/pod-with-override created
+
+controlplane ~ ➜  kubectl get po pod-with-override -o yaml | grep -A2 " securityContext:"
+  securityContext:
+    runAsNonRoot: false
+  serviceAccount: default
+
+10. controlplane ~ ➜  cat pod-with-conflict.yaml 
+# A pod with a conflicting securityContext setting: it has to run as a non-root
+# user, but we explicitly request a user id of 0 (root).
+# Without the webhook, the pod could be created, but would be unable to launch
+# due to an unenforceable security context leading to it being stuck in a
+# 'CreateContainerConfigError' status. With the webhook, the creation of
+# the pod is outright rejected.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-with-conflict
+  labels:
+    app: pod-with-conflict
+spec:
+  restartPolicy: OnFailure
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 0
+  containers:
+    - name: busybox
+      image: busybox
+      command: ["sh", "-c", "echo I am running as user $(id -u)"]
+
+controlplane ~ ➜  kubectl create -f pod-with-conflict.yaml 
+Error from server: error when creating "pod-with-conflict.yaml": admission webhook "webhook-server.webhook-demo.svc" denied the request: runAsNonRoot specified, but runAsUser set to 0 (the root user
+
 9.22 API Versions 08:47
 9.23 API Deprecations 13:45
 9.24 Practice Test – API Versions/Deprecations
 9.25 Solution: API Versions/Deprecations 07:18
+
 9.26 Custom Resource Definition 11:01
 9.27 Practice Test - Custom Resource Definition
 9.28 Custom Controllers 03:57
