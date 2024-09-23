@@ -869,9 +869,275 @@ Error from server: error when creating "pod-with-conflict.yaml": admission webho
 9.23 API Deprecations 13:45
 9.24 Practice Test – API Versions/Deprecations
 9.25 Solution: API Versions/Deprecations 07:18
+Identify the short names of the deployments, replicasets, cronjobs and customresourcedefinitions.
+>Take the help of the kubectl api-resources command and identify the short names.
+Identify which API group a resource called job is part of?
+>Run the command kubectl explain job and see the API group in the top of the line.
+
+controlplane ~ ➜  kubectl explain job 
+GROUP:      batch
+KIND:       Job
+VERSION:    v1
+
+DESCRIPTION:
+    Job represents the configuration of a single job.
+    
+FIELDS:
+  apiVersion    <string>
+    APIVersion defines the versioned schema of this representation of an object.
+    Servers should convert recognized schemas to the latest internal value, and
+    may reject unrecognized values. More info:
+    https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+
+  kind  <string>
+    Kind is a string value representing the REST resource this object
+    represents. Servers may infer this from the endpoint the client submits
+    requests to. Cannot be updated. In CamelCase. More info:
+    https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+
+  metadata      <ObjectMeta>
+    Standard object's metadata. More info:
+    https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+
+  spec  <JobSpec>
+    Specification of the desired behavior of a job. More info:
+    https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+
+  status        <JobStatus>
+    Current status of a job. More info:
+    https://git.k8s.io/community
+	
+What is the preferred version for authorization.k8s.io api group?
+>It supports v1 and v1beta1 but the preferred version is v1.
+To identify the preferred version, run the following commands as follows :-
+
+root@controlplane:~# kubectl proxy 8001&
+root@controlplane:~# curl localhost:8001/apis/authorization.k8s.io
+Where & runs the command in the background and kubectl proxy command starts the proxy to the kubernetes API server.
+
+
+05.Enable the v1alpha1 version for rbac.authorization.k8s.io API group on the controlplane node.
+Note: If you made a mistake in the config file could result in the API server being unavailable and can break the cluster.
+
+>Add the --runtime-config=rbac.authorization.k8s.io/v1alpha1 option to the kube-apiserver.yaml file.
+>As a good practice, take a backup of that apiserver manifest file before going to make any changes.
+
+In case, if anything happens due to misconfiguration you can replace it with the backup file.
+
+root@controlplane:~# cp -v /etc/kubernetes/manifests/kube-apiserver.yaml /root/kube-apiserver.yaml.backup
+Now, open up the kube-apiserver manifest file in the editor of your choice. It could be vim or nano.
+
+root@controlplane:~# vi /etc/kubernetes/manifests/kube-apiserver.yaml
+Add the --runtime-config flag in the command field as follows :-
+
+ - command:
+    - kube-apiserver
+    - --advertise-address=10.18.17.8
+    - --allow-privileged=true
+    - --authorization-mode=Node,RBAC
+    - --client-ca-file=/etc/kubernetes/pki/ca.crt
+    - --enable-admission-plugins=NodeRestriction
+    - --enable-bootstrap-token-auth=true
+    - --runtime-config=rbac.authorization.k8s.io/v1alpha1 --> This one 
+After that kubelet will detect the new changes and will recreate the apiserver pod.
+
+It may take some time.
+
+root@controlplane:~# kubectl get po -n kube-system
+Check the status of the apiserver pod. It should be in running condition.
+
+06.Install the kubectl convert plugin on the controlplane node.
+If unsure how to install then refer to the official k8s documentation page which is available at the top right panel.
+kubectl-convert configured correctly?
+
+>Download the latest release version from the curl command :-
+
+root@controlplane:~# curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl-convert
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   154  100   154    0     0   6416      0 --:--:-- --:--:-- --:--:--  6416
+100 60.7M  100 60.7M    0     0   142M      0 --:--:-- --:--:-- --:--:--  142M
+then check the availability by ls command :-
+
+root@controlplane:~# pwd
+/root
+root@controlplane:~# ls
+kubectl-convert  multi-pod.yaml  sample.yaml
+Change the permission of the file and move to the /usr/local/bin/ directory.
+
+root@controlplane:~# pwd
+/root
+root@controlplane:~# chmod +x kubectl-convert 
+root@controlplane:~# 
+root@controlplane:~# mv kubectl-convert /usr/local/bin/kubectl-convert
+root@controlplane:~# 
+Use the --help option to see more option.
+
+root@controlplane:~# kubectl-convert --help
+If it'll show more options that means it's configured correctly if it'll give an error that means we haven't set up properly.
+ kubectl-convert --help
+Convert config files between different API versions. Both YAML and JSON formats are accepted.
+
+ The command takes filename, directory, or URL as input, and convert it into format of version specified by --output-version flag. If target version is not specified or not supported, convert to latest version.
+
+ The default output will be printed to stdout in YAML format. One can use -o option to change to output destination.
+
+Usage:
+  convert -f FILENAME
+
+Examples:
+  # Convert 'pod.yaml' to latest version and print to stdout.
+  kubectl convert -f pod.yaml
+  
+  # Convert the live state of the resource specified by 'pod.yaml' to the latest version
+  # and print to stdout in JSON format.
+  kubectl convert -f pod.yaml --local -o json
+  
+  # Convert all files under current directory to latest version and create them all.
+  kubectl convert -f . | kubectl create -f -
+
+Flags:
+      --allow-missing-template-keys    If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats. (default true)
+      --as string                      Username to impersonate for the operation. User could be a regular user or a service account in a namespace.
+      --as-group stringArray           Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
+      --as-uid string                  UID to impersonate for the operation.
+      --cache-dir string               Default cache directory (default "/root/.kube/cache")
+      --certificate-authority string   Path to a cert file for the certificate authority
+      --client-certificate string      Path to a client certificate file for TLS
+      --client-key string              Path to a client key file for TLS
+      --cluster string                 The name of the kubeconfig cluster to use
+      --context string                 The name of the kubeconfig context to use
+      --disable-compression            If true, opt-out of response compression for all requests to the server
+  -f, --filename strings               Filename, directory, or URL to files to need to get converted.
+  -h, --help                           help for convert
+      --insecure-skip-tls-verify       If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
+      --kubeconfig string              Path to the kubeconfig file to use for CLI requests.
+  -k, --kustomize string               Process the kustomization directory. This flag can't be used together with -f or -R.
+      --local                          If true, convert will NOT try to contact api-server but run locally. (default true)
+      --log-flush-frequency duration   Maximum number of seconds between log flushes (default 5s)
+      --match-server-version           Require server version to match client version
+  -n, --namespace string               If present, the namespace scope for this CLI request
+  -o, --output string                  Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file). (default "yaml")
+      --output-version string          Output the formatted object with the given group version (for ex: 'extensions/v1beta1').
+      --password string                Password for basic authentication to the API server
+  -R, --recursive                      Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
+      --request-timeout string         The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
+  -s, --server string                  The address and port of the Kubernetes API server
+      --show-managed-fields            If true, keep the managedFields when printing objects in JSON or YAML format.
+      --template string                Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].
+      --tls-server-name string         Server name to use for server certificate validation. If it is not provided, the hostname used to contact the server is used
+      --token string                   Bearer token for authentication to the API server
+      --user string                    The name of the kubeconfig user to use
+      --username string                Username for basic authentication to the API server
+  -v, --v Level                        number for the log level verbosity
+      --validate string[="strict"]     Must be one of: strict (or true), warn, ignore (or false).
+                                                "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not.
+                                                "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise.
+                                                "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields. (default "strict")
+      --vmodule moduleSpec             comma-separated list of pattern=N settings for file-filtered logging (only works for the default text log format)
+07. Ingress manifest file is already given under the /root/ directory called ingress-old.yaml.
+With help of the kubectl convert command, change the deprecated API version to the networking.k8s.io/v1 and create the resource.
+> kubectl-convert -f ingress-old.yaml --output-version networking.k8s.io/v1 | kubectl apply -f -
+
+Run the command kubectl-convert to change the deprecated API version as follows :-
+
+root@controlplane:~# kubectl-convert -f ingress-old.yaml --output-version networking.k8s.io/v1
+
+# store new changes into a file 
+root@controlplane:~# kubectl-convert -f ingress-old.yaml --output-version networking.k8s.io/v1 > ingress-new.yaml
+After changing the API version and storing into a file, use the kubectl create -f command to deploy the resource :-
+
+root@controlplane:~# kubectl create -f ingress-new.yaml
+Inspect the apiVersion as follows :-
+
+root@controlplane:~# kubectl get ing ingress-space -oyaml | grep apiVersion
+Note: Maybe you will not see the service and other resources mentioned in the ingress YAML on the controlplane node because we have to only deploy the ingress resource with the latest API version.
 
 9.26 Custom Resource Definition 11:01
 9.27 Practice Test - Custom Resource Definition
+01.CRD Object can be either namespaced or cluster scoped.
+Is this statement true or false?
+>A CRD can be either namespaced or cluster-scoped. When you create a CRD, you can specify its scope in the spec.scope field of the CRD manifest.
+
+What is a custom resource?
+It is an extension of the Kubernetes API that is not necessarily available in a default Kubernetes installation.
+
+03.We have provided an incomplete CRDs manifest file called crd.yaml under the /root directory. Let’s complete it and create a custom resource definition from it.
+Let’s create a custom resource definition called internals.datasets.kodekloud.com. Assign the group to datasets.kodekloud.com and the resource is accessible only from a specific namespace.
+Make sure the version should be v1 and needed to enable the version so it’s being served via REST API.
+So finally create a custom resource from a given manifest file called custom.yaml.
+Note :- Make sure resources should be created successfully from the custom.yaml file.
+
+>---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: internals.datasets.kodekloud.com 
+spec:
+  group: datasets.kodekloud.com
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                internalLoad:
+                  type: string
+                range:
+                  type: integer
+                percentage:
+                  type: string
+  scope: Namespaced 
+  names:
+    plural: internals
+    singular: internal
+    kind: Internal
+    shortNames:
+    - int
+	
+kubectl create -f custom.yaml
+
+
+---
+kind: Internal
+apiVersion: datasets.kodekloud.com/v1
+metadata:
+  name: internal-space
+  namespace: default
+spec:
+  internalLoad: "high"
+  range: 80
+  percentage: "50"
+  
+  
+What are the properties given to the CRD’s called collectors.monitoring.controller?
+>Run the commad: kubectl describe crd collectors.monitoring.controller and inspect the given CRD.
+Create a custom resource called datacenter and the apiVersion should be traffic.controller/v1.
+
+Set the dataField length to 2 and access permission should be true.
+kind: Global
+apiVersion: traffic.controller/v1
+metadata:
+  name: datacenter
+spec:
+  dataField: 2
+  access: true
+What is the short name given to the CRD globals.traffic.controller ?
+Inspect the CRD globals.traffic.controller and identify the short names.
+
+
+
+
+
+
+
+
+
 9.28 Custom Controllers 03:57
 9.29 Operator Framework 03:00
 
