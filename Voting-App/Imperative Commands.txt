@@ -26,5 +26,3 @@ kubectl create -f aft_redis-service.yaml
 
 minikube service voting-app-service --url
 minikube service result-app-service --url
-
-
