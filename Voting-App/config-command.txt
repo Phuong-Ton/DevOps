@@ -1,0 +1,30 @@
+minikube update-context
+minikube start --driver=virtualbox
+kubectl create deploy voting-deploy --image=kodekloud/examplevotingapp_vote:v1 --port=80 --dry-run=client -o yaml > voting-deploy.yaml
+kubectl create deploy result-deploy --image=kodekloud/examplevotingapp_result:v1 --port=80 --dry-run=client -o yaml > result-deploy.yaml
+kubectl create deploy worker-deploy --image=kodekloud/examplevotingapp_worker:v1 --dry-run=client -o yaml > worker-deploy.yaml
+kubectl create deploy redis-deploy --image=redis --port=6379 --dry-run=client -o yaml > redis-deploy.yaml
+kubectl create deploy postgres-deploy --image=postgres --port=5432 --dry-run=client -o yaml > postgres-deploy.yaml
+
+kubectl create service nodeport voting-app-service --tcp=80:80 --node-port=30004 --dry-run=client -o yaml > voting-app-service.yaml
+kubectl create service nodeport result-app-service --tcp=80:80 --node-port=30005 --dry-run=client -o yaml > result-app-service.yaml
+kubectl create service clusterip db --tcp:5432:5432 --dry-run=client -o yaml > db-service.yaml
+
+kubectl create -f aft_voting-deploy.yaml
+kubectl create -f aft_result-deploy.yaml
+kubectl create -f aft_redis-deploy.yaml
+kubectl create -f aft_worker-deploy.yaml
+kubectl create -f aft_postgres-deploy.yaml
+kubectl set env deploy postgres-deploy POSTGRES_USER=postgres
+kubectl set env deploy postgres-deploy POSTGRES_PASSWORD=postgres
+kubectl set env deploy postgres-deploy POSTGRES_HOST_AUTH_METHOD=trust
+
+kubectl create -f aft_result-app-service.yaml
+kubectl create -f aft_voting-app-service.yaml
+kubectl create -f aft_db-service.yaml
+kubectl create -f aft_redis-service.yaml
+
+minikube service voting-app-service --url
+minikube service result-app-service --url
+
+
