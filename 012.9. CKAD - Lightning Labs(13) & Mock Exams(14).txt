@@ -26,7 +26,61 @@ Please note that the scoring system may not be the same as in the actual exam
 Please note that the difficulty level may not be the same as in the actual exam
 This is the first of its kind. More on the way
 6.2 Mock Exam - 1
+Next
+
+1 / 14
+Weight: 3
+Deploy a pod named nginx-448839 using the nginx:alpine image.
+Once done, click on the Next Question button in the top right corner of this panel. You may navigate back and forth freely between all questions. Once done with all questions, click on End Exam. Your work will be validated at the end and score shown. Good Luck!
+
+Name: nginx-448839
+Image: nginx:alpine
+
 6.3 Mock Exam - 1 - Solution 19:57
 6.4 Mock Exam - 2
 6.5 Mock Exam - 2 - Solution 17:50
 
+kubectl run nginx-448839 --image=nginx:alpine
+kubectl ns apx-
+
+
+kubectl create deploy httpd-frontend --image=http:2.4-alpine --replicas=3
+
+
+kubectl run messaging --image=redis:alpile
+kubectl descirbe rs rs-d33393
+delete XXXXXXX
+kubectl get pods
+kubectl delete pod -l name=busybox-pod
+6.kubectl expose deploy redis --port=6379 --name messaging-service --namespace marketing
+kubectl get pod webapp-color -o yaml > webapp-color
+
+change pink -> green
+
+kubectl replace -f webapp-color.yaml
+8
+kubectl create configmap cm=3392845 --from-literal=DB_NAME=SQL3322 --from-literal=DB_HOST=sql322.mycompany.com --from -literal=DB_PORT=3306
+
+kubectl create secret generic db-secret-xxdf --from-literal=DB_Host=sql101 -from-literal=DB_User=root --from literal=DB_
+Containers: > securityContext: > capapiclity: 
+
+securityContext:
+  runAsUser: 0
+
+
+kubectl logs e-com-113 -n e-commerce
+13
+kubectl create deploy redis --image=redis:alpine --replicas=1
+kubectl expose deploy redis --name=redis --port=6379 --target-port=6379
+
+
+
+
+
+
+
+
+
+
+
+ 
